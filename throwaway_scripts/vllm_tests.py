@@ -6,10 +6,16 @@ like DeepSeekR1.
 To run this example, you need to start the vLLM server with the reasoning
 parser:
 
-```bash
-vllm serve deepseek-ai/DeepSeek-R1-Distill-Qwen-1.5B \
-     --enable-reasoning --reasoning-parser deepseek_r1
+# ```bash
+# vllm serve allenai/Olmo-3-7B-Think \
+#      --enable-reasoning --reasoning-parser deepseek_r1
+# ```
+
 ```
+CUDA_VISIBLE_DEVICES=1 vllm serve Qwen/Qwen3-4B-Thinking-2507 \
+    --reasoning-parser qwen3 \
+    --gpu_memory_utilization 0.95 \
+    --max_model_len 16384
 
 Unlike openai_chat_completion_with_reasoning.py, this example demonstrates the
 streaming chat completions feature.
@@ -52,6 +58,7 @@ def main():
     printed_content = False
 
     for chunk in stream:
+        print(chunk)
         reasoning_content = None
         content = None
         # Check the content is reasoning_content or content
