@@ -29,8 +29,13 @@ def startup_event():
 def post_data_entry(entry: Dict[str, Any] = Body(
     ..., 
     example={
-        "service_name": "SensorMonitor_01", 
-        "data_payload": {"temperature": 28.5, "humidity": 65, "status": "Running"}
+        "prompt_id": "1", 
+        "prompt": "1,2",
+        "answer": "3",
+        "refusal": False,
+        "guard_rating": "safe",
+        "guard_model": "qwen",
+        "model": "OLMO"
     }
 )):
     """
@@ -38,17 +43,17 @@ def post_data_entry(entry: Dict[str, Any] = Body(
     Expects 'service_name' (str) and 'data_payload' (dict) in the request body.
     """
     try:
-        service_name = entry["service_name"]
-        data_payload = entry["data_payload"]
+        prompt_id = entry["prompt_id"]
+        prompt = entry["prompt"]
+        answer = entry["answer"]
+        refusal = entry["refusal"]
+        guard_rating = 1 if entry["guard_rating"] == "safe" else 0
+        guard_model = entry["guard_model"]
+        model = entry["model"]
     except KeyError as e:
         raise HTTPException(status_code=422, detail=f"Missing required field: {e.args[0]}")
     except TypeError:
         raise HTTPException(status_code=400, detail="Request body must be a JSON object with 'service_name' and 'data_payload'.")
-
-    try:
-        payload_json = json.dumps(data_payload)
-    except TypeError:
-        raise HTTPException(status_code=400, detail="data_payload must be a serializable dictionary.")
 
     current_time = datetime.now().isoformat()
 
@@ -58,10 +63,10 @@ def post_data_entry(entry: Dict[str, Any] = Body(
             cursor = conn.cursor()
             cursor.execute(
                 """
-                INSERT INTO data_entries (service_name, data_payload, timestamp)
-                VALUES (?, ?, ?)
+                INSERT INTO data_entries (prompt_id, prompt, answer, refusal, guard_rating, guard_model, model, timestamp)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?)
                 """,
-                (service_name, payload_json, current_time)
+                (prompt_id, prompt, answer, refusal, guard_rating, guard_model, model, current_time)
             )
             # The context manager will handle conn.commit()
             new_id = cursor.lastrowid
@@ -86,7 +91,7 @@ def get_all_data() -> List[Dict[str, Any]]:
     try:
         with get_db_connection() as conn:
             cursor = conn.cursor()
-            cursor.execute("SELECT id, service_name, data_payload, timestamp FROM data_entries ORDER BY timestamp DESC")
+            cursor.execute("SELECT * FROM data_entries ORDER BY timestamp DESC")
             rows = cursor.fetchall()
             data_entries = [dict(row) for row in rows]
             
