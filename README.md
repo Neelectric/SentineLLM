@@ -5,7 +5,9 @@ Go to where you donwloaded it (C:Program Files/GrafanaLabs/grafana/bin) and graf
 
 ## Run Prometheus server
 1 - ensure the prometheys.yml is targettting the same ports you expose on
-2 - run "./prometheus.exe --config.file=prometheus.yml" in the terminal
+2 - run in the terminal:
+    Windows: `./prometheus.exe --config.file=prometheus.yml`
+    Linux: `chmod`
 3 - verify targets at localhost:9090
 
 ## Run python database

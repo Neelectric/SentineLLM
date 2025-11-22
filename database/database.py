@@ -1,7 +1,6 @@
 import sqlite3
 from contextlib import contextmanager
 
-# Configuration for the SQLite database file
 DATABASE_FILE = "hackathon_data.db"
 
 # --- Database Connection Management ---
@@ -14,11 +13,9 @@ def get_db_connection():
     """
     conn = None
     try:
-        # Connect to the SQLite database file. It will be created if it doesn't exist.
         conn = sqlite3.connect(DATABASE_FILE)
-        # Set row_factory to sqlite3.Row to allow accessing columns by name
         conn.row_factory = sqlite3.Row 
-        conn.execute("PRAGMA journal_mode=WAL") # WAL improves write concurrency, useful for multiple services
+        conn.execute("PRAGMA journal_mode=WAL")
         yield conn
         conn.commit()
     except sqlite3.Error as e:
