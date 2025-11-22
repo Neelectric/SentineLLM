@@ -18,6 +18,7 @@
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 0,
+  "id": 0,
   "links": [],
   "panels": [
     {
@@ -30,13 +31,13 @@
       },
       "id": 3,
       "panels": [],
-      "title": "OLMO2 7B Instruct",
+      "title": "OLMO2 13B Instruct",
       "type": "row"
     },
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "df4u19wvkhqf4e"
+        "uid": "bf4wswiywecqoc"
       },
       "fieldConfig": {
         "defaults": {
@@ -52,7 +53,7 @@
             "barAlignment": 0,
             "barWidthFactor": 0.6,
             "drawStyle": "line",
-            "fillOpacity": 0,
+            "fillOpacity": 15,
             "gradientMode": "none",
             "hideFrom": {
               "legend": false,
@@ -92,7 +93,83 @@
             ]
           }
         },
-        "overrides": []
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "{__name__=\"llm_requests_total\", application=\"llm-service\", guard=\"Qwen/Qwen3Guard-Gen-0.6B\", instance=\"localhost:8000\", job=\"llm_monitor_app\", model=\"allenai/OLMo-2-1124-13B-Instruct\"}"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "dark-blue",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "{__name__=\"data_findings_total\", application=\"llm-service\", guard=\"Qwen/Qwen3Guard-Gen-0.6B\", instance=\"localhost:8004\", job=\"llm_monitor_app\", model=\"allenai/OLMo-2-1124-13B-Instruct\"}"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#C4162A",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "{__name__=\"llm_unsafe_prompts_total\", application=\"llm-service\", guard=\"Qwen/Qwen3Guard-Gen-0.6B\", instance=\"localhost:8000\", job=\"llm_monitor_app\", model=\"allenai/OLMo-2-1124-13B-Instruct\"}"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "dark-red",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "LLM Requests"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "dark-blue",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "LLM Jailbreaks"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "dark-red",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          }
+        ]
       },
       "gridPos": {
         "h": 11,
@@ -122,10 +199,23 @@
             "uid": "df4u19wvkhqf4e"
           },
           "editorMode": "code",
-          "expr": "my_test_gauge",
-          "legendFormat": "__auto",
+          "expr": "llm_requests_total",
+          "legendFormat": "LLM Requests",
           "range": true,
           "refId": "A"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "bf4wswiywecqoc"
+          },
+          "editorMode": "code",
+          "expr": "llm_unsafe_prompts_total",
+          "hide": false,
+          "instant": false,
+          "legendFormat": "LLM Jailbreaks",
+          "range": true,
+          "refId": "B"
         }
       ],
       "title": "Performance",
@@ -134,41 +224,69 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "df4u19wvkhqf4e"
+        "uid": "bf4wswiywecqoc"
       },
       "fieldConfig": {
         "defaults": {
           "color": {
-            "mode": "thresholds"
+            "mode": "palette-classic"
           },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
+          "custom": {
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            }
+          },
+          "mappings": []
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Fixed JailBreaks"
+            },
+            "properties": [
               {
-                "color": "green",
-                "value": 0
-              },
+                "id": "color",
+                "value": {
+                  "fixedColor": "dark-green",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Exposed JailBreaks"
+            },
+            "properties": [
               {
-                "color": "red",
-                "value": 80
+                "id": "color",
+                "value": {
+                  "fixedColor": "dark-red",
+                  "mode": "fixed"
+                }
               }
             ]
           }
-        },
-        "overrides": []
+        ]
       },
       "gridPos": {
-        "h": 8,
+        "h": 11,
         "w": 7,
         "x": 17,
         "y": 1
       },
       "id": 4,
       "options": {
-        "minVizHeight": 75,
-        "minVizWidth": 75,
-        "orientation": "auto",
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "pieType": "donut",
         "reduceOptions": {
           "calcs": [
             "lastNotNull"
@@ -176,23 +294,43 @@
           "fields": "",
           "values": false
         },
-        "showThresholdLabels": false,
-        "showThresholdMarkers": true,
-        "sizing": "auto"
+        "sort": "desc",
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "single",
+          "sort": "none"
+        }
       },
       "pluginVersion": "12.3.0",
       "targets": [
         {
+          "editorMode": "code",
+          "expr": "llm_requests_total",
+          "legendFormat": "Exposed JailBreaks",
+          "range": true,
           "refId": "A"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "bf4wswiywecqoc"
+          },
+          "editorMode": "code",
+          "expr": "data_findings_total",
+          "hide": false,
+          "instant": false,
+          "legendFormat": "Fixed JailBreaks",
+          "range": true,
+          "refId": "B"
         }
       ],
       "title": "Shield",
-      "type": "gauge"
+      "type": "piechart"
     },
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "df4u19wvkhqf4e"
+        "uid": "bf4wswiywecqoc"
       },
       "fieldConfig": {
         "defaults": {
@@ -204,218 +342,8 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
+                "color": "orange",
                 "value": 0
-              },
-              {
-                "color": "red",
-                "value": 80
-              }
-            ]
-          }
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 3,
-        "w": 7,
-        "x": 17,
-        "y": 9
-      },
-      "id": 2,
-      "options": {
-        "inlineEditing": true,
-        "panZoom": false,
-        "root": {
-          "background": {
-            "color": {
-              "fixed": "transparent"
-            },
-            "image": {
-              "mode": "field"
-            },
-            "size": "cover"
-          },
-          "border": {
-            "color": {
-              "fixed": "dark-green"
-            }
-          },
-          "constraint": {
-            "horizontal": "left",
-            "vertical": "top"
-          },
-          "elements": [
-            {
-              "background": {
-                "color": {
-                  "fixed": "transparent"
-                }
-              },
-              "border": {
-                "color": {
-                  "fixed": "semi-dark-blue"
-                },
-                "radius": 0,
-                "width": 0
-              },
-              "config": {
-                "align": "center",
-                "api": {
-                  "contentType": "application/json",
-                  "data": "{}",
-                  "endpoint": "",
-                  "headerParams": [],
-                  "method": "POST",
-                  "queryParams": []
-                },
-                "color": {
-                  "fixed": "#F0F4FD"
-                },
-                "size": 14,
-                "style": {
-                  "variant": "primary"
-                },
-                "text": {
-                  "fixed": "Start/Stop",
-                  "mode": "fixed"
-                }
-              },
-              "connections": [],
-              "constraint": {
-                "horizontal": "left",
-                "vertical": "top"
-              },
-              "links": [],
-              "name": "MyButton",
-              "placement": {
-                "height": 50,
-                "left": 299,
-                "top": 7,
-                "width": 110.98957824707031
-              },
-              "type": "button"
-            },
-            {
-              "background": {
-                "color": {
-                  "fixed": "transparent"
-                }
-              },
-              "border": {
-                "color": {
-                  "fixed": "dark-green"
-                }
-              },
-              "config": {
-                "align": "left",
-                "color": {
-                  "fixed": "rgb(204, 204, 220)"
-                },
-                "size": 16,
-                "text": {
-                  "fixed": "100"
-                },
-                "valign": "middle"
-              },
-              "constraint": {
-                "horizontal": "left",
-                "vertical": "top"
-              },
-              "links": [],
-              "name": "ThresholdInput",
-              "placement": {
-                "height": 50,
-                "left": 196,
-                "top": 7,
-                "width": 75
-              },
-              "type": "text"
-            },
-            {
-              "background": {
-                "color": {
-                  "fixed": "transparent"
-                }
-              },
-              "border": {
-                "color": {
-                  "fixed": "dark-green"
-                }
-              },
-              "config": {
-                "align": "center",
-                "color": {
-                  "fixed": "rgb(204, 204, 220)"
-                },
-                "size": 16,
-                "text": {
-                  "fixed": "Safety Threshold"
-                },
-                "valign": "middle"
-              },
-              "constraint": {
-                "horizontal": "left",
-                "vertical": "top"
-              },
-              "links": [],
-              "name": "ThresholdText",
-              "placement": {
-                "height": 50,
-                "left": 15,
-                "top": 7,
-                "width": 138.9973907470703
-              },
-              "type": "text"
-            }
-          ],
-          "name": "Element 1763767374942",
-          "placement": {
-            "height": 100,
-            "left": 0,
-            "rotation": 0,
-            "top": 0,
-            "width": 100
-          },
-          "type": "frame"
-        },
-        "showAdvancedTypes": true,
-        "tooltip": {
-          "disableForOneClick": false,
-          "mode": "single"
-        },
-        "zoomToContent": false
-      },
-      "pluginVersion": "12.3.0",
-      "targets": [
-        {
-          "refId": "A"
-        }
-      ],
-      "title": "Safety Control",
-      "type": "canvas"
-    },
-    {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "df4u19wvkhqf4e"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "thresholds"
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": 0
-              },
-              {
-                "color": "red",
-                "value": 80
               }
             ]
           }
@@ -449,6 +377,10 @@
       "pluginVersion": "12.3.0",
       "targets": [
         {
+          "editorMode": "code",
+          "expr": "data_findings_total",
+          "legendFormat": "__auto",
+          "range": true,
           "refId": "A"
         }
       ],
@@ -458,7 +390,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "df4u19wvkhqf4e"
+        "uid": "bf4wswiywecqoc"
       },
       "fieldConfig": {
         "defaults": {
@@ -474,7 +406,7 @@
             "barAlignment": 0,
             "barWidthFactor": 0.6,
             "drawStyle": "line",
-            "fillOpacity": 0,
+            "fillOpacity": 15,
             "gradientMode": "none",
             "hideFrom": {
               "legend": false,
@@ -518,7 +450,7 @@
       },
       "gridPos": {
         "h": 5,
-        "w": 9,
+        "w": 6,
         "x": 3,
         "y": 12
       },
@@ -539,16 +471,20 @@
       "pluginVersion": "12.3.0",
       "targets": [
         {
+          "editorMode": "code",
+          "expr": "rate(data_findings_total[$__range])",
+          "legendFormat": "Findings",
+          "range": true,
           "refId": "A"
         }
       ],
-      "title": "Findings over time",
+      "title": "Findings Rate Over Time",
       "type": "timeseries"
     },
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "df4u19wvkhqf4e"
+        "uid": "bf4wswiywecqoc"
       },
       "fieldConfig": {
         "defaults": {
@@ -574,13 +510,13 @@
       },
       "gridPos": {
         "h": 2,
-        "w": 10,
-        "x": 12,
+        "w": 15,
+        "x": 9,
         "y": 12
       },
       "id": 9,
       "options": {
-        "inlineEditing": true,
+        "inlineEditing": false,
         "panZoom": false,
         "root": {
           "background": {
@@ -729,10 +665,10 @@
               "links": [],
               "name": "Element 2",
               "placement": {
-                "height": 45.98958206176758,
+                "height": 45.989585876464844,
                 "left": 204,
                 "top": 7,
-                "width": 76.9921875
+                "width": 76.98958587646484
               },
               "type": "text"
             },
@@ -847,6 +783,100 @@
                 "width": 76.9921875
               },
               "type": "text"
+            },
+            {
+              "background": {
+                "color": {
+                  "fixed": "transparent"
+                }
+              },
+              "border": {
+                "color": {
+                  "fixed": "dark-green"
+                }
+              },
+              "config": {
+                "align": "center",
+                "api": {
+                  "contentType": "application/json",
+                  "data": "{}",
+                  "endpoint": "http://localhost:8003/refine",
+                  "headerParams": [],
+                  "method": "GET",
+                  "queryParams": []
+                },
+                "color": {
+                  "fixed": "#F0F4FD"
+                },
+                "size": 14,
+                "style": {
+                  "variant": "success"
+                },
+                "text": {
+                  "fixed": "Refine Dataset",
+                  "mode": "fixed"
+                }
+              },
+              "constraint": {
+                "horizontal": "left",
+                "vertical": "top"
+              },
+              "name": "RefineData",
+              "placement": {
+                "height": 45,
+                "left": 624,
+                "rotation": 0,
+                "top": 8,
+                "width": 135
+              },
+              "type": "button"
+            },
+            {
+              "background": {
+                "color": {
+                  "fixed": "transparent"
+                }
+              },
+              "border": {
+                "color": {
+                  "fixed": "dark-green"
+                }
+              },
+              "config": {
+                "align": "center",
+                "api": {
+                  "contentType": "application/json",
+                  "data": "{}",
+                  "endpoint": "http://localhost:8003/wipedb",
+                  "headerParams": [],
+                  "method": "GET",
+                  "queryParams": []
+                },
+                "color": {
+                  "fixed": "#F0F4FD"
+                },
+                "size": 14,
+                "style": {
+                  "variant": "destructive"
+                },
+                "text": {
+                  "fixed": "Wipe Findings",
+                  "mode": "fixed"
+                }
+              },
+              "constraint": {
+                "horizontal": "left",
+                "vertical": "top"
+              },
+              "name": "WipeDB",
+              "placement": {
+                "height": 45,
+                "left": 784,
+                "rotation": 0,
+                "top": 8,
+                "width": 137.9817657470703
+              },
+              "type": "button"
             }
           ],
           "name": "Element 1763808834821",
@@ -873,12 +903,13 @@
         }
       ],
       "title": "",
+      "transparent": true,
       "type": "canvas"
     },
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "df4u19wvkhqf4e"
+        "uid": "bf4wswiywecqoc"
       },
       "fieldConfig": {
         "defaults": {
@@ -886,142 +917,25 @@
             "mode": "thresholds"
           },
           "mappings": [],
+          "max": 100,
           "thresholds": {
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
+                "color": "dark-red",
                 "value": 0
               },
               {
-                "color": "red",
-                "value": 80
-              }
-            ]
-          }
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 2,
-        "w": 2,
-        "x": 22,
-        "y": 12
-      },
-      "id": 7,
-      "options": {
-        "inlineEditing": true,
-        "panZoom": false,
-        "root": {
-          "background": {
-            "color": {
-              "fixed": "transparent"
-            }
-          },
-          "border": {
-            "color": {
-              "fixed": "dark-green"
-            }
-          },
-          "constraint": {
-            "horizontal": "left",
-            "vertical": "top"
-          },
-          "elements": [
-            {
-              "background": {
-                "color": {
-                  "fixed": "transparent"
-                }
-              },
-              "border": {
-                "color": {
-                  "fixed": "dark-green"
-                }
-              },
-              "config": {
-                "align": "center",
-                "api": {
-                  "contentType": "application/json",
-                  "data": "{}",
-                  "endpoint": "",
-                  "headerParams": [],
-                  "method": "POST",
-                  "queryParams": []
-                },
-                "color": {
-                  "fixed": "#F0F4FD"
-                },
-                "size": 14,
-                "style": {
-                  "variant": "primary"
-                },
-                "text": {
-                  "fixed": "Refine Data",
-                  "mode": "fixed"
-                }
-              },
-              "constraint": {
-                "horizontal": "left",
-                "vertical": "top"
-              },
-              "name": "TriggerRefinemnt",
-              "placement": {
-                "height": 42.994789123535156,
-                "left": 4,
-                "top": 13,
-                "width": 110.98957824707031
-              },
-              "type": "button"
-            }
-          ],
-          "name": "Element 1763808546533",
-          "placement": {
-            "height": 100,
-            "left": 0,
-            "rotation": 0,
-            "top": 0,
-            "width": 100
-          },
-          "type": "frame"
-        },
-        "showAdvancedTypes": true,
-        "tooltip": {
-          "disableForOneClick": false,
-          "mode": "single"
-        },
-        "zoomToContent": false
-      },
-      "pluginVersion": "12.3.0",
-      "targets": [
-        {
-          "refId": "A"
-        }
-      ],
-      "title": "",
-      "type": "canvas"
-    },
-    {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "df4u19wvkhqf4e"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "thresholds"
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": 0
+                "color": "dark-orange",
+                "value": 25
               },
               {
-                "color": "red",
-                "value": 80
+                "color": "dark-yellow",
+                "value": 50
+              },
+              {
+                "color": "dark-green",
+                "value": 75
               }
             ]
           }
@@ -1030,8 +944,8 @@
       },
       "gridPos": {
         "h": 3,
-        "w": 12,
-        "x": 12,
+        "w": 15,
+        "x": 9,
         "y": 14
       },
       "id": 8,
@@ -1062,6 +976,10 @@
       "pluginVersion": "12.3.0",
       "targets": [
         {
+          "editorMode": "code",
+          "expr": "vector(0)",
+          "legendFormat": "__auto",
+          "range": true,
           "refId": "A"
         }
       ],
@@ -1076,12 +994,12 @@
     "list": []
   },
   "time": {
-    "from": "2025-11-06T06:29:12.608Z",
-    "to": "2025-12-08T06:29:12.608Z"
+    "from": "now-1h",
+    "to": "now"
   },
   "timepicker": {},
   "timezone": "browser",
-  "title": "Sentinel Trace",
-  "uid": "addm96q",
-  "version": 19
+  "title": "Sentinel Trace 2",
+  "uid": "SentinelTrace2",
+  "version": 36
 }

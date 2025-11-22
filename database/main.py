@@ -2,7 +2,7 @@ from fastapi import FastAPI, HTTPException, Body
 from datetime import datetime
 from typing import List, Dict, Any
 from database import initialize_db, get_db_connection
-from metric_exporter import start_metrics_server, register_data_finding
+from metric_exporter import start_metrics_server, register_data_finding, reset_findings
 
 # --- 1. FastAPI Initialization ---
 
@@ -120,6 +120,25 @@ def get_all_data() -> List[Dict[str, Any]]:
         print(f"Error fetching data: {e}")
         raise HTTPException(status_code=500, detail="Failed to retrieve data due to an internal database error.")
     
+@app.options("/wipedb", response_model=bool)
+def wipe_db() -> bool:
+    print("database wipe")
+    try:
+        with get_db_connection() as conn:
+            cursor = conn.cursor()
+            cursor.execute("DELETE FROM data_entries")
+            cursor.execute("UPDATE sqlite_sequence SET seq = 0 WHERE name = 'data_entries'")
+            reset_findings()
+
+            return True
+        
+    except Exception as e:
+        print(f"Error deleting data: {e}")
+        raise HTTPException(status_code=500, detail="Failed to delete data due to an internal database error.")
+    
+@app.options("/refine")
+def refine_data():
+    print("Now the cool stuff should happen")    
 
 # --- 4. Server Execution ---
 if __name__ == "__main__":
