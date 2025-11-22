@@ -3871,6 +3871,7 @@ dependencies = [
     { name = "pandas" },
     { name = "pyarrow" },
     { name = "ray", extra = ["serve"] },
+    { name = "uvloop" },
     { name = "vllm" },
 ]
 
@@ -3880,6 +3881,7 @@ requires-dist = [
     { name = "pandas", specifier = ">=2.3.3" },
     { name = "pyarrow", specifier = ">=22.0.0" },
     { name = "ray", extras = ["serve"], specifier = ">=2.52.0" },
+    { name = "uvloop", specifier = ">=0.22.1" },
     { name = "vllm", specifier = ">=0.11.2" },
 ]
 

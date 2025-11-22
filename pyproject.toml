@@ -9,5 +9,6 @@ dependencies = [
     "pandas>=2.3.3",
     "pyarrow>=22.0.0",
     "ray[serve]>=2.52.0",
+    "uvloop>=0.22.1",
     "vllm>=0.11.2",
 ]
