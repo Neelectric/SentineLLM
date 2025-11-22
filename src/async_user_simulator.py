@@ -10,7 +10,7 @@ guard_model_id = "Qwen/Qwen3Guard-Gen-0.6B"
 
 FRONTIER_URL = "http://localhost:8001/v1"
 GUARD_URL = "http://localhost:8002/v1"
-RATE = 50
+RATE = 10
 
 frontier_client = AsyncOpenAI(api_key="EMPTY", base_url=FRONTIER_URL)
 guard_client = AsyncOpenAI(api_key="EMPTY", base_url=GUARD_URL)
