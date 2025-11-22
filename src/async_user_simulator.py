@@ -3,13 +3,14 @@ import time
 import numpy as np
 from datasets import load_dataset
 from openai import AsyncOpenAI
+from tqdm import tqdm
 
 frontier_model_id = "allenai/OLMo-2-1124-7B-Instruct"
 guard_model_id = "Qwen/Qwen3Guard-Gen-0.6B"
 
 FRONTIER_URL = "http://localhost:8001/v1"
 GUARD_URL = "http://localhost:8002/v1"
-RATE = 100
+RATE = 50
 
 frontier_client = AsyncOpenAI(api_key="EMPTY", base_url=FRONTIER_URL)
 guard_client = AsyncOpenAI(api_key="EMPTY", base_url=GUARD_URL)
@@ -17,6 +18,7 @@ guard_client = AsyncOpenAI(api_key="EMPTY", base_url=GUARD_URL)
 async def process_prompt(prompt_id, prompt_text):
     start = time.time()
     
+    # collect response from frontier model
     frontier_response = await frontier_client.chat.completions.create(
         model=frontier_model_id,
         messages=[{"role": "user", "content": prompt_text}],
@@ -25,25 +27,34 @@ async def process_prompt(prompt_id, prompt_text):
     )
     
     frontier_text = frontier_response.choices[0].message.content
-    print(f"[{prompt_id}] {time.time() - start:.2f}s {frontier_text[:]}")
+    # print(f"[{prompt_id}] {time.time() - start:.2f}s {frontier_text[:1]}")
     
+    # collect safety rating from guard model
+    safety_rating = None
     guard_response = await guard_client.chat.completions.create(
         model=guard_model_id,
         messages=[
             {"role": "user", "content": prompt_text},
             {"role": "assistant", "content": frontier_text},
             ],
-        # temperature=0.7,
-        # max_tokens=2048
     )
     guard_text = guard_response.choices[0].message.content
-    print(f"----[{prompt_id}] {time.time() - start:.2f}s {guard_text}")
+    if "Unsafe" in guard_text:
+        safety_rating = 0
+        tqdm.write(prompt_text + "//////")
+        tqdm.write(frontier_text)
+        tqdm.write(guard_text)
+        tqdm.write("#" * 50)
+    else:
+        safety_rating = 1
+    # print(f"----[{prompt_id}] {time.time() - start:.2f}s {safety_rating}")
+    
 
 async def main():
     dataset = load_dataset("allenai/wildguardmix", "wildguardtrain")["train"]
-    prompts = [elt["prompt"] for elt in dataset if elt["prompt"]][0:2]
+    prompts = [elt["prompt"] for elt in dataset if elt["prompt"]][0:]
     
-    for i, prompt in enumerate(prompts):
+    for i, prompt in tqdm(enumerate(prompts), total=len(prompts)):
         asyncio.create_task(process_prompt(i, prompt))
         await asyncio.sleep(np.random.exponential(1/RATE))
     

@@ -46,7 +46,7 @@ CUDA_VISIBLE_DEVICES=1 vllm serve \
 allenai/OLMo-2-1124-7B-Instruct \
 --port 8001 \
 --max-model-len 2048 \
---gpu-memory-utilization 0.75
+--gpu-memory-utilization 0.82
 ```
 
 Serving the guard
@@ -55,7 +55,7 @@ CUDA_VISIBLE_DEVICES=1 vllm serve \
 Qwen/Qwen3Guard-Gen-0.6B \
 --port 8002 \
 --max-model-len 2048 \
---gpu-memory-utilization 0.17
+--gpu-memory-utilization 0.1
 ```
 
 
