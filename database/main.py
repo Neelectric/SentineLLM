@@ -86,12 +86,29 @@ def post_data_entry(entry: Dict[str, Any] = Body(
 def get_all_data() -> List[Dict[str, Any]]:
     """
     Retrieves all data entries from the 'data_entries' table as a list of dictionaries.
-    The 'data_payload' field will still be a JSON string as stored in the DB.
     """
     try:
         with get_db_connection() as conn:
             cursor = conn.cursor()
             cursor.execute("SELECT * FROM data_entries ORDER BY timestamp DESC")
+            rows = cursor.fetchall()
+            data_entries = [dict(row) for row in rows]
+            
+            return data_entries
+
+    except Exception as e:
+        print(f"Error fetching data: {e}")
+        raise HTTPException(status_code=500, detail="Failed to retrieve data due to an internal database error.")
+    
+@app.get("/data_unsafe", response_model=List[Dict[str, Any]])
+def get_all_data() -> List[Dict[str, Any]]:
+    """
+    Retrieves all unsafe data entries from the 'data_entries' table as a list of dictionaries.
+    """
+    try:
+        with get_db_connection() as conn:
+            cursor = conn.cursor()
+            cursor.execute("SELECT * FROM data_entries WHERE guard_rating = 0 ORDER BY timestamp DESC")
             rows = cursor.fetchall()
             data_entries = [dict(row) for row in rows]
             
