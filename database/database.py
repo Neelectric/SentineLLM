@@ -43,30 +43,16 @@ def initialize_db():
             conn.execute("""
                 CREATE TABLE IF NOT EXISTS data_entries (
                     id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    service_name TEXT NOT NULL,
-                    data_payload TEXT NOT NULL,
-                    timestamp TEXT NOT NULL
+                    prompt_id INTEGER NOT NULL,
+                    prompt TEXT NOT NULL,
+                    answer TEXT NOT NULL,
+                    refusal INTEGER NOT NULL,
+                    guard_rating INTEGER NOT NULL,
+                    guard_model TEXT NOT NULL,
+                    model TEXT NOT NULL,
+                    timestamp TEXT
                 )
             """)
         print("Database schema created successfully (Table: data_entries).")
     except Exception as e:
         print(f"Failed to initialize database: {e}")
-
-# If this file is run directly, initialize the database
-if __name__ == "__main__":
-    initialize_db()
-
-# Example usage of the context manager (you'll use this pattern in FastAPI)
-# if __name__ == "__main__":
-#     initialize_db()
-#     try:
-#         with get_db_connection() as conn:
-#             # Insert a test record
-#             cursor = conn.cursor()
-#             cursor.execute(
-#                 "INSERT INTO data_entries (service_name, data_payload, timestamp) VALUES (?, ?, ?)",
-#                 ("TestService", '{"temp": 25.5, "status": "OK"}', '2025-01-01T12:00:00Z')
-#             )
-#             print("Test record inserted.")
-#     except Exception as e:
-#         print(f"Error during test insertion: {e}")
