@@ -9,12 +9,25 @@
 #       url={https://arxiv.org/abs/2504.07096}, 
 # }
 
+##### we love you allenai <3 pls take me as an intern
+
+import requests
+
 
 
 def olmo_trace(frontier_model_id, prompt_text, frontier_text):
     """
     Returns documents in pre-training corpus of frontier model that are likely to have led to the completion.
     """
+    
+    
+    payload = {
+        'index': 'v4_olmo-2-1124-13b-instruct_llama',
+        'query_type': 'get_doc_by_rank',
+        'query': 'University of Washington',
+    }
+    result = requests.post('https://api.infini-gram.io/', json=payload).json()
+    print(result)
     
     
     
