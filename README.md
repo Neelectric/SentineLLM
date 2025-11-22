@@ -38,3 +38,24 @@ async def handle_button_press(request: Request):
 - Histogram, tacks number and size of events in buckets, use buckets arg to change (.observe(int))
 - Info, key value pairs, apparently they don't work in multiprocess mode (.info(dict))
 - Enum, which of a set of states is true (.state(string)), so you can switch what the state of the process is
+
+# How to serve the 'frontier' LLM and the guard on one GPU
+Serving the LLM
+```
+CUDA_VISIBLE_DEVICES=1 vllm serve \
+allenai/OLMo-2-1124-7B-Instruct \
+--port 8001 \
+--max-model-len 2048 \
+--gpu-memory-utilization 0.7
+```
+
+Serving the guard
+```
+CUDA_VISIBLE_DEVICES=1 vllm serve \
+Qwen/Qwen3Guard-Gen-0.6B \
+--port 8002 \
+--max-model-len 2048 \
+--gpu-memory-utilization 0.17
+```
+
+

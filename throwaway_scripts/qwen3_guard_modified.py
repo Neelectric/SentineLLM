@@ -1,7 +1,7 @@
 from openai import OpenAI
 
 openai_api_key = "EMPTY"
-openai_api_base = "http://localhost:8000/v1"
+openai_api_base = "http://localhost:8002/v1"
 model = "Qwen/Qwen3Guard-Gen-0.6B"
 client = OpenAI(
     api_key=openai_api_key,
