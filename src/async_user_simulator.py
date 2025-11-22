@@ -10,7 +10,7 @@ from metric_exporter import start_metrics_server, register_request, register_uns
 import requests
 
 
-from olmo_trace import olmo_trace
+# from database.olmo_trace import olmo_trace
 
 frontier_model_id = "allenai/OLMo-2-1124-13B-Instruct"
 guard_model_id = "Qwen/Qwen3Guard-Gen-0.6B"
@@ -20,8 +20,8 @@ GUARD_URL = "http://localhost:8002/v1"
 DATABASE_URL = "http://localhost:8003"
 RATE = 10
 
-frontier_client = AsyncOpenAI(api_key="EMPTY", base_url=FRONTIER_URL)
-guard_client = AsyncOpenAI(api_key="EMPTY", base_url=GUARD_URL)
+frontier_client = AsyncOpenAI(api_key="EMPTY", base_url=FRONTIER_URL, timeout=1200)
+guard_client = AsyncOpenAI(api_key="EMPTY", base_url=GUARD_URL, timeout=1200)
 
 async def process_prompt(prompt_id, prompt_text):
     start = time.time()
@@ -59,7 +59,6 @@ async def process_prompt(prompt_id, prompt_text):
     else:
         safety_rating = 1
     # print(f"----[{prompt_id}] {time.time() - start:.2f}s {safety_rating}")
-    pre_train_docs = olmo_trace(frontier_model_id, prompt_text, frontier_text)
     entry = {
             "prompt_id" : prompt_id,
             "prompt" : prompt_text,
@@ -74,8 +73,8 @@ async def process_prompt(prompt_id, prompt_text):
 async def main():
     start_metrics_server()
 
-    dataset = load_dataset("allenai/wildguardmix", "wildguardtrain")["train"]
-    prompts = [elt["prompt"] for elt in dataset if elt["prompt"]][0:500]
+    dataset = load_dataset("allenai/wildguardmix", "wildguardtrain")["train"].shuffle(seed=42)
+    prompts = [elt["prompt"] for elt in dataset if elt["prompt"]][:]
     
     for i, prompt in tqdm(enumerate(prompts), total=len(prompts)):
         asyncio.create_task(process_prompt(i, prompt))

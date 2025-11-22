@@ -3933,8 +3933,10 @@ dependencies = [
     { name = "datasets" },
     { name = "openai" },
     { name = "pandas" },
+    { name = "prometheus-client" },
     { name = "pyarrow" },
     { name = "ray", extra = ["serve"] },
+    { name = "requests" },
     { name = "uvloop" },
     { name = "vllm" },
 ]
@@ -3945,8 +3947,10 @@ requires-dist = [
     { name = "datasets", specifier = ">=4.4.1" },
     { name = "openai", specifier = ">=2.8.1" },
     { name = "pandas", specifier = ">=2.3.3" },
+    { name = "prometheus-client", specifier = ">=0.23.1" },
     { name = "pyarrow", specifier = ">=22.0.0" },
     { name = "ray", extras = ["serve"], specifier = ">=2.52.0" },
+    { name = "requests", specifier = ">=2.32.5" },
     { name = "uvloop", specifier = ">=0.22.1" },
     { name = "vllm", specifier = ">=0.11.2" },
 ]
