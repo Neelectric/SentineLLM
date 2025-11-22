@@ -13,7 +13,7 @@ import requests
 from olmo_trace_temp import olmo_trace
 
 frontier_model_id = "allenai/OLMo-2-1124-13B-Instruct"
-guard_model_id = "Qwen/Qwen3Guard-Gen-0.6B"
+guard_model_id = "Qwen/Qwen3Guard-Gen-8B"
 
 FRONTIER_URL = "http://localhost:8001/v1"
 GUARD_URL = "http://localhost:8002/v1"
@@ -22,6 +22,7 @@ RATE = 10
 
 frontier_client = AsyncOpenAI(api_key="EMPTY", base_url=FRONTIER_URL, timeout=1200)
 guard_client = AsyncOpenAI(api_key="EMPTY", base_url=GUARD_URL, timeout=1200)
+frontier_tokenizer = AutoTokenizer.from_pretrained("meta-llama/Llama-2-7b-hf") # for some godforsaken reason OLMoTrace infinigram API uses llama tokenizer instead of their own olmo models
 
 async def process_prompt(prompt_id, prompt_text):
     start = time.time()
@@ -56,7 +57,7 @@ async def process_prompt(prompt_id, prompt_text):
         tqdm.write("#" * 50)
         register_unsafe_request(frontier_model_id, guard_model_id)
         # register_reprompting(frontier_model_id, guard_model_id) # need to track when fixing happens but not implementing
-        pretrain_docs = olmo_trace(frontier_model_id, prompt_text, frontier_text)
+        pretrain_docs = olmo_trace(frontier_model_id, prompt_text, frontier_text, frontier_tokenizer)
     else:
         safety_rating = 1
     # print(f"----[{prompt_id}] {time.time() - start:.2f}s {safety_rating}")

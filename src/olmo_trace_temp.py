@@ -15,13 +15,14 @@ import requests
 
 
 
-def olmo_trace(frontier_model_id, prompt_text, frontier_text):
+def olmo_trace(frontier_model_id, prompt_text, frontier_text, frontier_tokenizer):
     """
     Returns documents in pre-training corpus of frontier model that are likely to have led to the completion.
     """
-    import requests
-
-    query = frontier_text
+    if len(frontier_text) > 1000:
+        query = frontier_text[0:1000]
+    else:
+        query = frontier_text
 
     # Step 1: Find all segments
     payload = {
@@ -49,9 +50,15 @@ def olmo_trace(frontier_model_id, prompt_text, frontier_text):
                 's': shard_idx,
                 'rank': rank
             }
+            
             doc_result = requests.post('https://api.infini-gram.io/', json=payload).json()
             
-            sub_string_matching(frontier_text, doc_result["spans"][0][0])
+            doc_span = doc_result["spans"][0][0]
+            doc_span_tokenized = frontier_tokenizer(doc_span)[0]
+            frontier_text_tokenized = frontier_tokenizer(frontier_text)[0]
+            assert frontier_text_tokenized == doc_result['token_ids']
+            
+            sub_string_matching(doc_result['token_ids'], doc_span)
             
             all_documents.append(doc_result)
             
@@ -85,5 +92,5 @@ def sub_string_matching(frontier_text, span):
             else:
                 LCSuf[i][j] = 0
     lcs = s1[end_pos - res:end_pos] if res > 0 else ""
-    
+
     return lcs
