@@ -3,13 +3,19 @@
 
 from vllm import LLM, SamplingParams
 
-# Sample prompts.
-prompts = [
-    "Hello, my name is",
-    "The president of the United States is",
-    "The capital of France is",
-    "The future of AI is",
-]
+from datasets import load_dataset
+
+dataset_id = "allenai/wildguardmix"
+dataset = load_dataset(dataset_id, "wildguardtrain")["train"]
+print(dataset)
+
+prompts = [elt["prompt"] for elt in dataset if elt["prompt"] is not None and elt["prompt"] != ""]
+
+
+print(len(prompts))
+print(prompts[0])
+
+
 # Create a sampling params object.
 sampling_params = SamplingParams(temperature=0.8, top_p=0.95)
 
