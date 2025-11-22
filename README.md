@@ -46,7 +46,7 @@ CUDA_VISIBLE_DEVICES=1 vllm serve \
 allenai/OLMo-2-1124-7B-Instruct \
 --port 8001 \
 --max-model-len 2048 \
---gpu-memory-utilization 0.7
+--gpu-memory-utilization 0.75
 ```
 
 Serving the guard

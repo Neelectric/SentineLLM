@@ -1,64 +1,53 @@
-### async simulation
-
 import asyncio
 import time
 import numpy as np
-from vllm import AsyncLLMEngine, AsyncEngineArgs, SamplingParams
 from datasets import load_dataset
-import aiosqlite
-from prometheus_client import Counter, Histogram, Gauge, make_asgi_app
-from contextlib import asynccontextmanager
-import uvicorn
-from fastapi import FastAPI
-
-
-prompts_total = Counter('prompts_total', 'Total prompts processed')
-prompts_dangerous = Counter('prompts_dangerous_total', 'Dangerous prompts')
-gen_latency = Histogram('generation_latency_seconds', 'Generation time')
-in_flight = Gauge('prompts_in_flight', 'Currently processing')
-
+from openai import AsyncOpenAI
 
 frontier_model_id = "allenai/OLMo-2-1124-7B-Instruct"
-guard_model_id = ""
-rate = 100
+guard_model_id = "Qwen/Qwen3Guard-Gen-0.6B"
 
+FRONTIER_URL = "http://localhost:8001/v1"
+GUARD_URL = "http://localhost:8002/v1"
+RATE = 100
 
-async def process_prompt(engine, prompt_id, prompt_text):
+frontier_client = AsyncOpenAI(api_key="EMPTY", base_url=FRONTIER_URL)
+guard_client = AsyncOpenAI(api_key="EMPTY", base_url=GUARD_URL)
+
+async def process_prompt(prompt_id, prompt_text):
     start = time.time()
     
-    sampling = SamplingParams(temperature=0.7, max_tokens=512)
-    results_generator = engine.generate(prompt_text, sampling, f"req-{prompt_id}")
+    frontier_response = await frontier_client.chat.completions.create(
+        model=frontier_model_id,
+        messages=[{"role": "user", "content": prompt_text}],
+        temperature=0.7,
+        max_tokens=1800
+    )
     
-    async for result in results_generator:
-        if result.finished:
-            response = result.outputs[0].text
+    frontier_text = frontier_response.choices[0].message.content
+    print(f"[{prompt_id}] {time.time() - start:.2f}s {frontier_text[:]}")
     
-    print(f"[{prompt_id}] {time.time() - start:.2f}s {response[0:50]}")
-
+    guard_response = await guard_client.chat.completions.create(
+        model=guard_model_id,
+        messages=[
+            {"role": "user", "content": prompt_text},
+            {"role": "assistant", "content": frontier_text},
+            ],
+        # temperature=0.7,
+        # max_tokens=2048
+    )
+    guard_text = guard_response.choices[0].message.content
+    print(f"----[{prompt_id}] {time.time() - start:.2f}s {guard_text}")
 
 async def main():
-    # Load prompts
     dataset = load_dataset("allenai/wildguardmix", "wildguardtrain")["train"]
-    prompts = [elt["prompt"] for elt in dataset if elt["prompt"]]
-    
-    # Init engine
-    args = AsyncEngineArgs(
-        model=frontier_model_id, 
-        max_model_len=2048,
-        gpu_memory_utilization=0.7
-        )
-    frontier_llm_engine = AsyncLLMEngine.from_engine_args(args)
+    prompts = [elt["prompt"] for elt in dataset if elt["prompt"]][0:2]
     
     for i, prompt in enumerate(prompts):
-        asyncio.create_task(process_prompt(frontier_llm_engine, i, prompt))
-        
-        
-        await asyncio.sleep(np.random.exponential(1/rate))
+        asyncio.create_task(process_prompt(i, prompt))
+        await asyncio.sleep(np.random.exponential(1/RATE))
     
     await asyncio.sleep(60)
-
-
-
 
 if __name__ == "__main__":
     asyncio.run(main())
