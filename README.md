@@ -43,7 +43,7 @@ async def handle_button_press(request: Request):
 Serving the LLM
 ```
 CUDA_VISIBLE_DEVICES=1 vllm serve \
-allenai/OLMo-2-1124-7B-Instruct \
+allenai/OLMo-2-1124-13B-Instruct \
 --port 8001 \
 --max-model-len 2048 \
 --gpu-memory-utilization 0.82
