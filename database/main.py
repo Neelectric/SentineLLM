@@ -1,8 +1,8 @@
 from fastapi import FastAPI, HTTPException, Body
-import json
 from datetime import datetime
 from typing import List, Dict, Any
-from db_setup import initialize_db, get_db_connection
+from database import initialize_db, get_db_connection
+from metric_exporter import start_metrics_server, register_data_finding
 
 # --- 1. FastAPI Initialization ---
 
@@ -42,6 +42,7 @@ def post_data_entry(entry: Dict[str, Any] = Body(
     Receives raw JSON data and logs it to the 'data_entries' table.
     Expects 'service_name' (str) and 'data_payload' (dict) in the request body.
     """
+    #print("a")
     try:
         prompt_id = entry["prompt_id"]
         prompt = entry["prompt"]
@@ -70,6 +71,7 @@ def post_data_entry(entry: Dict[str, Any] = Body(
             )
             # The context manager will handle conn.commit()
             new_id = cursor.lastrowid
+            register_data_finding(model, guard_model)
             
         return {
             "message": "Data logged successfully",
@@ -117,3 +119,11 @@ def get_all_data() -> List[Dict[str, Any]]:
     except Exception as e:
         print(f"Error fetching data: {e}")
         raise HTTPException(status_code=500, detail="Failed to retrieve data due to an internal database error.")
+    
+
+# --- 4. Server Execution ---
+if __name__ == "__main__":
+    import uvicorn
+    start_metrics_server()
+    uvicorn.run("main:app", host="0.0.0.0", port=8003)
+    

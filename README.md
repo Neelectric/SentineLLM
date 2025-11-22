@@ -5,11 +5,11 @@ Go to where you donwloaded it (C:Program Files/GrafanaLabs/grafana/bin) and graf
 
 ## Run Prometheus server
 1 - ensure the prometheys.yml is targettting the same ports you expose on
-2 - run "prometheus.exe --config.file=prometheus.yml" in the terminal
+2 - run "./prometheus.exe --config.file=prometheus.yml" in the terminal
 3 - verify targets at localhost:9090
 
 ## Run python database
-go to database file and run: uvicorn main:app --reload
+go to database file and run: "uvicorn main:app --reload"
 
 # How to expose metrics in python
 - Make sure you ahve prometheus_client lib installed
