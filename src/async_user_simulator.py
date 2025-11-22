@@ -5,7 +5,9 @@ from datasets import load_dataset
 from openai import AsyncOpenAI
 from tqdm import tqdm
 
-frontier_model_id = "allenai/OLMo-2-1124-7B-Instruct"
+from .olmo_trace import olmo_trace
+
+frontier_model_id = "allenai/OLMo-2-1124-13B-Instruct"
 guard_model_id = "Qwen/Qwen3Guard-Gen-0.6B"
 
 FRONTIER_URL = "http://localhost:8001/v1"
@@ -30,7 +32,7 @@ async def process_prompt(prompt_id, prompt_text):
     # print(f"[{prompt_id}] {time.time() - start:.2f}s {frontier_text[:1]}")
     
     # collect safety rating from guard model
-    safety_rating = None
+    safety_rating = 1
     guard_response = await guard_client.chat.completions.create(
         model=guard_model_id,
         messages=[
@@ -45,14 +47,16 @@ async def process_prompt(prompt_id, prompt_text):
         tqdm.write(frontier_text)
         tqdm.write(guard_text)
         tqdm.write("#" * 50)
-    else:
-        safety_rating = 1
+        pre_train_docs = olmo_trace(frontier_model_id, prompt_text, frontier_text)
+
     # print(f"----[{prompt_id}] {time.time() - start:.2f}s {safety_rating}")
+    
+    
     
 
 async def main():
     dataset = load_dataset("allenai/wildguardmix", "wildguardtrain")["train"]
-    prompts = [elt["prompt"] for elt in dataset if elt["prompt"]][0:]
+    prompts = [elt["prompt"] for elt in dataset if elt["prompt"]][0:5]
     
     for i, prompt in tqdm(enumerate(prompts), total=len(prompts)):
         asyncio.create_task(process_prompt(i, prompt))
