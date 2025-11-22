@@ -15,7 +15,7 @@ import requests
 
 
 
-def olmo_trace(frontier_model_id, prompt_text, frontier_text, frontier_tokenizer):
+async def olmo_trace(frontier_model_id, prompt_text, frontier_text, frontier_tokenizer):
     """
     Returns documents in pre-training corpus of frontier model that are likely to have led to the completion.
     """
@@ -30,8 +30,14 @@ def olmo_trace(frontier_model_id, prompt_text, frontier_text, frontier_tokenizer
         'query_type': 'find',
         'query': query,
     }
-    result = requests.post('https://api.infini-gram.io/', json=payload).json()
-    print(f"Total occurrences: {result['cnt']}")
+    for i in range(5):
+        try:
+            result = requests.post('https://api.infini-gram.io/', json=payload).json()
+            occurences = result['cnt']
+            break
+        except:
+            continue
+    print(f"Total occurrences: {occurences} after {i} retries")
 
     segment_by_shard = result['segment_by_shard']
 
@@ -40,7 +46,7 @@ def olmo_trace(frontier_model_id, prompt_text, frontier_text, frontier_tokenizer
     all_documents = []
 
     for shard_idx, (start_rank, end_rank) in enumerate(segment_by_shard):
-        print(f"Processing shard {shard_idx}: ranks {start_rank} to {end_rank} ({end_rank - start_rank + 1} documents)")
+        # print(f"Processing shard {shard_idx}: ranks {start_rank} to {end_rank} ({end_rank - start_rank + 1} documents)")
         
         for rank in range(start_rank, end_rank + 1):
             payload = {
@@ -52,21 +58,28 @@ def olmo_trace(frontier_model_id, prompt_text, frontier_text, frontier_tokenizer
             }
             
             doc_result = requests.post('https://api.infini-gram.io/', json=payload).json()
-            
             doc_span = doc_result["spans"][0][0]
-            doc_span_tokenized = frontier_tokenizer(doc_span)[0]
-            frontier_text_tokenized = frontier_tokenizer(frontier_text)[0]
-            assert frontier_text_tokenized == doc_result['token_ids']
             
-            sub_string_matching(doc_result['token_ids'], doc_span)
+            # given the doc and the response from the LLM, find the longest common substring (in tokens)
             
+            doc_span_tokenized = frontier_tokenizer(doc_span)[0].ids[1:]
+            frontier_text_tokenized = frontier_tokenizer(frontier_text)[0].ids[1:]
+            doc_result_tokenized = doc_result['token_ids']
+            # assert frontier_text_tokenized == doc_result_tokenized
+            
+            lcs_toks = sub_string_matching(doc_result_tokenized, doc_span_tokenized)
+            lcs = frontier_tokenizer.decode(lcs_toks)
+            doc_result["longest_common_substring"] = lcs
+            if len(all_documents) > 0:
+                if lcs == all_documents[-1]["longest_common_substring"]:
+                    print("same lcs...")
+                    continue
             all_documents.append(doc_result)
             
     print(f"\nTotal documents retrieved: {len(all_documents)}")
     
-    
-    
     return all_documents
+
 
 def sub_string_matching(frontier_text, span):
     """Finds the maximum matching substring betwen LLM response and pre-train docs, returns indices"""

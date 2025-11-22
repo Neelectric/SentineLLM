@@ -5,6 +5,9 @@ from database import initialize_db, get_db_connection
 from metric_exporter import start_metrics_server, register_data_finding, reset_findings
 
 from olmo_trace import olmo_trace
+from transformers import AutoTokenizer
+
+frontier_tokenizer = AutoTokenizer.from_pretrained("meta-llama/Llama-2-7b-hf") # for some godforsaken reason OLMoTrace infinigram API uses llama tokenizer instead of their own olmo models
 
 # --- 1. FastAPI Initialization ---
 
@@ -45,7 +48,7 @@ def post_data_entry(entry: Dict[str, Any] = Body(
     Expects 'service_name' (str) and 'data_payload' (dict) in the request body.
     """
     #print("a")
-    pre_train_docs = olmo_trace(model, prompt, answer)
+    pre_train_docs = olmo_trace(model, prompt, answer, frontier_tokenizer)
     
     try:
         prompt_id = entry["prompt_id"]

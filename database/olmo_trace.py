@@ -15,13 +15,14 @@ import requests
 
 
 
-def olmo_trace(frontier_model_id, prompt_text, frontier_text):
+async def olmo_trace(frontier_model_id, prompt_text, frontier_text, frontier_tokenizer):
     """
     Returns documents in pre-training corpus of frontier model that are likely to have led to the completion.
     """
-    import requests
-
-    query = frontier_text
+    if len(frontier_text) > 1000:
+        query = frontier_text[0:1000]
+    else:
+        query = frontier_text
 
     # Step 1: Find all segments
     payload = {
@@ -29,8 +30,14 @@ def olmo_trace(frontier_model_id, prompt_text, frontier_text):
         'query_type': 'find',
         'query': query,
     }
-    result = requests.post('https://api.infini-gram.io/', json=payload).json()
-    print(f"Total occurrences: {result['cnt']}")
+    for i in range(5):
+        try:
+            result = requests.post('https://api.infini-gram.io/', json=payload).json()
+            occurences = result['cnt']
+            break
+        except:
+            continue
+    print(f"Total occurrences: {occurences} after {i} retries")
 
     segment_by_shard = result['segment_by_shard']
 
@@ -39,7 +46,7 @@ def olmo_trace(frontier_model_id, prompt_text, frontier_text):
     all_documents = []
 
     for shard_idx, (start_rank, end_rank) in enumerate(segment_by_shard):
-        print(f"Processing shard {shard_idx}: ranks {start_rank} to {end_rank} ({end_rank - start_rank + 1} documents)")
+        # print(f"Processing shard {shard_idx}: ranks {start_rank} to {end_rank} ({end_rank - start_rank + 1} documents)")
         
         for rank in range(start_rank, end_rank + 1):
             payload = {
@@ -49,11 +56,54 @@ def olmo_trace(frontier_model_id, prompt_text, frontier_text):
                 's': shard_idx,
                 'rank': rank
             }
+            
             doc_result = requests.post('https://api.infini-gram.io/', json=payload).json()
+            doc_span = doc_result["spans"][0][0]
+            
+            # given the doc and the response from the LLM, find the longest common substring (in tokens)
+            
+            doc_span_tokenized = frontier_tokenizer(doc_span)[0].ids[1:]
+            frontier_text_tokenized = frontier_tokenizer(frontier_text)[0].ids[1:]
+            doc_result_tokenized = doc_result['token_ids']
+            # assert frontier_text_tokenized == doc_result_tokenized
+            
+            lcs_toks = sub_string_matching(doc_result_tokenized, doc_span_tokenized)
+            lcs = frontier_tokenizer.decode(lcs_toks)
+            doc_result["longest_common_substring"] = lcs
+            if len(all_documents) > 0:
+                if lcs == all_documents[-1]["longest_common_substring"]:
+                    print("same lcs...")
+                    continue
             all_documents.append(doc_result)
             
-            # for span in doc_result["spans"]:
-                # print(span)
-    
     print(f"\nTotal documents retrieved: {len(all_documents)}")
+    
     return all_documents
+
+
+def sub_string_matching(frontier_text, span):
+    """Finds the maximum matching substring betwen LLM response and pre-train docs, returns indices"""
+    "taken from https://www.geeksforgeeks.org/dsa/longest-common-substring-dp-29/"
+    s1 = frontier_text
+    s2 = span
+    m = len(s1)
+    n = len(s2)
+
+    # Create a table to store lengths of longest
+    # common suffixes of substrings.
+    LCSuf = [[0] * (n + 1) for _ in range(m + 1)]
+    res = 0
+    end_pos = 0
+
+    # Build LCSuf[m+1][n+1] in bottom-up fashion.
+    for i in range(1, m + 1):
+        for j in range(1, n + 1):
+            if s1[i - 1] == s2[j - 1]:
+                LCSuf[i][j] = LCSuf[i - 1][j - 1] + 1
+                res = max(res, LCSuf[i][j])
+                end_pos = i
+            else:
+                LCSuf[i][j] = 0
+    lcs = s1[end_pos - res:end_pos] if res > 0 else ""
+
+    return lcs

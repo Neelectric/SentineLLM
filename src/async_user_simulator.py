@@ -57,7 +57,9 @@ async def process_prompt(prompt_id, prompt_text):
         tqdm.write("#" * 50)
         register_unsafe_request(frontier_model_id, guard_model_id)
         # register_reprompting(frontier_model_id, guard_model_id) # need to track when fixing happens but not implementing
-        pretrain_docs = olmo_trace(frontier_model_id, prompt_text, frontier_text, frontier_tokenizer)
+        
+        # we no longer get olmotrace docs in user simulator, but in DB!
+        # pretrain_docs = await olmo_trace(frontier_model_id, prompt_text, frontier_text, frontier_tokenizer)
     else:
         safety_rating = 1
     # print(f"----[{prompt_id}] {time.time() - start:.2f}s {safety_rating}")
