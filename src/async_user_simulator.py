@@ -10,7 +10,7 @@ from metric_exporter import start_metrics_server, register_request, register_uns
 import requests
 
 
-# from database.olmo_trace import olmo_trace
+from olmo_trace_temp import olmo_trace
 
 frontier_model_id = "allenai/OLMo-2-1124-13B-Instruct"
 guard_model_id = "Qwen/Qwen3Guard-Gen-0.6B"
@@ -32,7 +32,7 @@ async def process_prompt(prompt_id, prompt_text):
         model=frontier_model_id,
         messages=[{"role": "user", "content": prompt_text}],
         temperature=0.7,
-        max_tokens=1800
+        max_tokens=1500
     )
     
     frontier_text = frontier_response.choices[0].message.content
@@ -56,6 +56,7 @@ async def process_prompt(prompt_id, prompt_text):
         tqdm.write("#" * 50)
         register_unsafe_request(frontier_model_id, guard_model_id)
         # register_reprompting(frontier_model_id, guard_model_id) # need to track when fixing happens but not implementing
+        pretrain_docs = olmo_trace(frontier_model_id, prompt_text, frontier_text)
     else:
         safety_rating = 1
     # print(f"----[{prompt_id}] {time.time() - start:.2f}s {safety_rating}")
