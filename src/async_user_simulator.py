@@ -1,10 +1,14 @@
 import asyncio
 import time
+import random
 import numpy as np
 from datasets import load_dataset
 from openai import AsyncOpenAI
 from tqdm import tqdm
 from transformers import AutoTokenizer
+from metric_exporter import start_metrics_server, register_request, register_unsafe_request, register_reprompting
+import requests
+
 
 from olmo_trace import olmo_trace
 
@@ -13,6 +17,7 @@ guard_model_id = "Qwen/Qwen3Guard-Gen-0.6B"
 
 FRONTIER_URL = "http://localhost:8001/v1"
 GUARD_URL = "http://localhost:8002/v1"
+DATABASE_URL = "http://localhost:8003"
 RATE = 10
 
 frontier_client = AsyncOpenAI(api_key="EMPTY", base_url=FRONTIER_URL)
@@ -22,6 +27,7 @@ async def process_prompt(prompt_id, prompt_text):
     start = time.time()
     
     # collect response from frontier model
+    register_request(frontier_model_id, guard_model_id)
     frontier_response = await frontier_client.chat.completions.create(
         model=frontier_model_id,
         messages=[{"role": "user", "content": prompt_text}],
@@ -48,14 +54,26 @@ async def process_prompt(prompt_id, prompt_text):
         tqdm.write(frontier_text)
         tqdm.write(guard_text)
         tqdm.write("#" * 50)
-    pre_train_docs = olmo_trace(frontier_model_id, prompt_text, frontier_text)
-
+        register_unsafe_request(frontier_model_id, guard_model_id)
+        # register_reprompting(frontier_model_id, guard_model_id) # need to track when fixing happens but not implementing
+    else:
+        safety_rating = 1
     # print(f"----[{prompt_id}] {time.time() - start:.2f}s {safety_rating}")
-    
-    
-    
+    pre_train_docs = olmo_trace(frontier_model_id, prompt_text, frontier_text)
+    entry = {
+            "prompt_id" : prompt_id,
+            "prompt" : prompt_text,
+            "answer" : frontier_text,
+            "refusal" : False, # currently not tracking
+            "guard_rating" : safety_rating,
+            "guard_model" : guard_model_id,
+            "model" : frontier_model_id
+        }
+    response = requests.post(f"{DATABASE_URL}/data", json=entry)
 
 async def main():
+    start_metrics_server()
+
     dataset = load_dataset("allenai/wildguardmix", "wildguardtrain")["train"]
     prompts = [elt["prompt"] for elt in dataset if elt["prompt"]][0:500]
     
