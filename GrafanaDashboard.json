@@ -18,7 +18,7 @@
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 0,
-  "id": 1,
+  "id": 2,
   "links": [],
   "panels": [
     {
@@ -1033,20 +1033,20 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 8,
+        "h": 16,
         "w": 12,
         "x": 0,
         "y": 17
       },
-      "id": 10,
+      "id": 12,
       "options": {
-        "afterRender": "window.triggerAction = async (id, message, guard) => {\r\n\r\n  const baseUrl = 'http://localhost:8003/trace';\r\n\r\n  const params = new URLSearchParams({\r\n    finding_id: id\r\n  });\r\n\r\n  const fullUrl = `${baseUrl}?${params.toString()}`;\r\n\r\n  console.log(`Sending GET request to: ${fullUrl}`);\r\n\r\n  try {\r\n    const response = await fetch(fullUrl);\r\n\r\n    if (response.ok) {\r\n      console.log(`Trace request successfully initiated for ID: ${id}. Check server logs for full URL.`);\r\n    } else {\r\n      console.log(`Trace failed! Server returned error: ${response.status}. Check console (F12).`);\r\n    }\r\n  } catch (error) {\r\n    console.error('Network Error:', error);\r\n    alert('Network error occurred. The browser cannot reach the specified endpoint.');\r\n  }\r\n};",
-        "content": "<div style=\"margin-bottom:10px;\">Status: {{data.length}} rows loaded.</div>\n\n<table style=\"width:100%; border-collapse:collapse;\">\n  <thead>\n    <tr style=\"border-bottom:2px solid #444; text-align:left;\">\n      <th style=\"padding:8px;\">ID</th>\n      <th style=\"padding:8px;\">Guard</th>\n      <th style=\"padding:8px;\">Message</th>\n      <th style=\"padding:8px;\">Action</th>\n    </tr>\n  </thead>\n  <tbody>\n    {{#each data}}\n    <tr style=\"border-bottom:1px solid #333;\">\n      <td style=\"padding:8px;\">{{this.id}}</td>\n      <td style=\"padding:8px;\">{{this.guard}}</td>\n      <td style=\"padding:8px;\">{{this.message}}</td>\n      <td style=\"padding:8px;\">\n        <button style=\"background:#3274d9;color:white;border:none;padding:5px 10px;cursor:pointer;\" onclick='triggerAction(\"{{this.id}}\", {{json this.message}}, \"{{this.guard}}\")'>Send</button>\n      </td>\n    </tr>\n    {{/each}}\n  </tbody>\n</table>",
+        "afterRender": "window.triggerAction = async (id, message, guard) => {\r\n\r\n  const baseUrl = 'http://localhost:8003/trace';\r\n\r\n  const params = new URLSearchParams({\r\n    finding_id: id\r\n  });\r\n\r\n  const fullUrl = `${baseUrl}?${params.toString()}`;\r\n\r\n  console.log(`Sending GET request to: ${fullUrl}`);\r\n\r\n  try {\r\n    const response = await fetch(fullUrl);\r\n\r\n    if (response.ok) {\r\n      console.log(`Trace request successfully initiated for ID: ${id}. Check server logs for full URL.`);\r\n    } else {\r\n      console.log(`Trace failed! Server returned error: ${response.status}. Check console (F12).`);\r\n    }\r\n  } catch (error) {\r\n    console.error('Network Error:', error);\r\n    alert('Network error occurred. The browser cannot reach the specified endpoint.');\r\n  }\r\n};\r\n\r\nsetTimeout(() => {\r\n  const rows = document.querySelectorAll(\"#findings-table tbody tr\");\r\n  const seen = new Set();\r\n\r\n  rows.forEach(row => {\r\n    const cells = row.querySelectorAll(\"td\");\r\n    const id = cells[0].innerText.trim();\r\n    const model = cells[1].innerText.trim();\r\n    const guard = cells[2].innerText.trim();\r\n    const message = cells[3].innerText.trim();\r\n\r\n    const key = `${id}|${model}|${guard}|${message}`;\r\n\r\n    if (seen.has(key)) {\r\n      row.remove();              // Remove duplicate row\r\n    } else {\r\n      seen.add(key);\r\n    }\r\n  });\r\n\r\n  // Update row count text\r\n  const count = seen.size;\r\n  const statusDiv = document.querySelector(\"div[style*='margin-bottom']\");\r\n  if (statusDiv) statusDiv.innerHTML = `Status: ${count} unique rows loaded.`;\r\n\r\n}, 10); ",
+        "content": "<table id=\"findings-table\" style=\"width:100%; border-collapse:collapse;\">\n  <thead>\n    <tr style=\"border-bottom:2px solid #444; text-align:left;\">\n      <th style=\"padding:8px;\">timestamp</th>\n      <th style=\"padding:8px;\">Model</th>\n      <th style=\"padding:8px;\">Message</th>\n      <th style=\"padding:8px;\">Action</th>\n    </tr>\n  </thead>\n  <tbody>\n    {{#each data}}\n    <tr style=\"border-bottom:1px solid #333;\">\n      <td style=\"padding:8px;\">{{this.timestamp}}</td>\n      <td style=\"padding:8px;\">{{this.model}}</td>\n      <td style=\"padding:8px;\">{{this.message}}</td>\n      <td style=\"padding:8px;\">\n        <button style=\"background:#3274d9;color:white;border:none;padding:5px 10px;cursor:pointer;\"\n                onclick='triggerAction(\"{{this.id}}\", {{json this.message}}, \"{{this.guard}}\")'>\n          Send\n        </button>\n      </td>\n    </tr>\n    {{/each}}\n  </tbody>\n</table>\n",
         "contentPartials": [],
         "defaultContent": "",
         "editor": {
           "format": "auto",
-          "language": "html"
+          "language": "handlebars"
         },
         "editors": [
           "afterRender"
@@ -1068,21 +1068,13 @@
           "exemplar": false,
           "expr": "latest_finding_info",
           "format": "table",
-          "instant": true,
+          "instant": false,
           "legendFormat": "__auto",
-          "range": false,
+          "range": true,
           "refId": "A"
         }
       ],
       "title": "Findings",
-      "transformations": [
-        {
-          "id": "labelsToFields",
-          "options": {
-            "mode": "columns"
-          }
-        }
-      ],
       "transparent": true,
       "type": "marcusolsson-dynamictext-panel"
     },
@@ -1110,7 +1102,7 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 8,
+        "h": 16,
         "w": 12,
         "x": 12,
         "y": 17
@@ -1192,14 +1184,14 @@
     "list": []
   },
   "time": {
-    "from": "now-30m",
+    "from": "now-1h",
     "to": "now"
   },
   "timeRangeUpdatedDuringEditOrView": false,
   "timepicker": {},
   "timezone": "browser",
-  "title": "Sentinel Trace 2",
-  "uid": "SentinelTrace2",
-  "version": 83,
+  "title": "Sentinel Trace 2 Copy",
+  "uid": "af4zmifvoffggf",
+  "version": 2,
   "weekStart": ""
 }

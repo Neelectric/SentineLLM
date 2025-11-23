@@ -26,7 +26,7 @@ def register_data_finding(id: str, model_name: str, guard_name: str, prompt: str
         'model': model_name,
         'guard': guard_name,
         'message': prompt,
-        'timestamp': str(int(time.time() * 1000)) # Add a timestamp for uniqueness
+        'timestamp': str(int(time.time() * 1000))
     })
 
 def reset_findings():

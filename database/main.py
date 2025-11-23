@@ -7,9 +7,9 @@ from fastapi.middleware.cors import CORSMiddleware
 import random
 
 from olmo_trace import olmo_trace
-from transformers import AutoTokenizer
+# from transformers import AutoTokenizer
 
-frontier_tokenizer = AutoTokenizer.from_pretrained("meta-llama/Llama-2-7b-hf") # for some godforsaken reason OLMoTrace infinigram API uses llama tokenizer instead of their own olmo models
+# frontier_tokenizer = AutoTokenizer.from_pretrained("meta-llama/Llama-2-7b-hf") # for some godforsaken reason OLMoTrace infinigram API uses llama tokenizer instead of their own olmo models
 
 # --- 1. FastAPI Initialization ---
 
@@ -56,11 +56,7 @@ def post_data_entry(entry: Dict[str, Any] = Body(
     """
     Receives raw JSON data and logs it to the 'data_entries' table.
     Expects 'service_name' (str) and 'data_payload' (dict) in the request body.
-    """
-    #print("a")
-    # temporarily hardcoding frontier_model_id
-    
-    
+    """   
     try:
         prompt_id = entry["prompt_id"]
         prompt = entry["prompt"]
@@ -73,7 +69,7 @@ def post_data_entry(entry: Dict[str, Any] = Body(
         raise HTTPException(status_code=422, detail=f"Missing required field: {e.args[0]}")
     except TypeError:
         raise HTTPException(status_code=400, detail="Request body must be a JSON object with 'service_name' and 'data_payload'.")
-    pre_train_docs = olmo_trace(model, prompt, answer, frontier_tokenizer)
+    # pre_train_docs = olmo_trace(model, prompt, answer, frontier_tokenizer)
     
     current_time = datetime.now().isoformat()
 
@@ -90,7 +86,7 @@ def post_data_entry(entry: Dict[str, Any] = Body(
             )
             # The context manager will handle conn.commit()
             new_id = cursor.lastrowid
-            register_data_finding(model, guard_model)
+            register_data_finding(new_id, model, guard_model, prompt, refusal)
             
         return {
             "message": "Data logged successfully",
@@ -162,14 +158,11 @@ def refine_data():
 @app.get("/trace")
 def trace_origin(finding_id: int):
     register_trace(finding_id, f"The chosen <marked> number is {random.randint(1,6)}</marked>")
-    register_data_finding("1", "model", "guard", "a"*random.randint(1,6))
-    print("OLMO trace should return the documents highlighted")
 
 # --- 4. Server Execution ---
 if __name__ == "__main__":
     import uvicorn
     start_metrics_server()
-    register_data_finding("1", "model", "guard", "pee pee poo pee")
     uvicorn.run("main:app", host="0.0.0.0", port=8003)
     
     
