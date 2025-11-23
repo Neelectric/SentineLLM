@@ -22,7 +22,7 @@ def register_data_finding(id: str, model_name: str, guard_name: str, prompt: str
     REGISTERED_LABELS.add((model_name, guard_name))
     DATA_FINDINGS_TOTAL.labels(model=model_name, guard=guard_name).inc()
     LATEST_FINDING_INFO.info({
-        'id': id,
+        'id': str(id),
         'model': model_name,
         'guard': guard_name,
         'message': prompt,

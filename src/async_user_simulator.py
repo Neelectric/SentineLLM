@@ -2,7 +2,7 @@ import asyncio
 import time
 import random
 import numpy as np
-from datasets import load_dataset
+from datasets import load_dataset, Dataset
 from openai import AsyncOpenAI
 from tqdm import tqdm
 from transformers import AutoTokenizer
@@ -86,9 +86,16 @@ async def process_prompt(prompt_id, prompt_text):
         if "Unsafe" in reprompted_guard_text:
             reprompting_worked = False
             tqdm.write("FAILED")
+            return_item = None
         else:
             reprompting_worked = True
             tqdm.write("SUCCESS")
+            # return_item = [prompt_text, frontier_text, reprompted_frontier_text]
+            return_item = {
+                "prompt": prompt_text, 
+                "chosen": reprompted_frontier_text,
+                "rejected": frontier_text
+            }
         tqdm.write("Tried to reprompt model, and second generation was")
         tqdm.write(reprompted_frontier_text + "//////")
         tqdm.write(reprompted_guard_text + "//////")
@@ -104,6 +111,9 @@ async def process_prompt(prompt_id, prompt_text):
                 "model" : frontier_model_id
             }
         response = requests.post(f"{DATABASE_URL}/data", json=entry)
+        return return_item
+        
+        
 
     else:
         safety_rating = 1
@@ -111,11 +121,18 @@ async def process_prompt(prompt_id, prompt_text):
 
 async def main():
     start_metrics_server()
-    
+    dpo_prompts = []
     for i, prompt in tqdm(enumerate(prompts), total=len(prompts)):
-        asyncio.create_task(process_prompt(i, prompt))
+        dpo_task = asyncio.create_task(process_prompt(i, prompt))
+        dpo_thruple = await dpo_task
+        dpo_prompts.append(dpo_thruple)
         await asyncio.sleep(np.random.exponential(1/RATE))
-    
+    dpo_prompts = [elt for elt in dpo_prompts if elt is not None]
+    ds = Dataset.from_list(dpo_prompts)
+    print(ds)
+    model_name = frontier_model_id.split("/")[1]
+    ds_name = "Neelectric/" + model_name + "_DPO"
+    ds.push_to_hub(ds_name, private=True)
     await asyncio.sleep(60)
 
 if __name__ == "__main__":
