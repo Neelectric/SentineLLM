@@ -1036,9 +1036,12 @@
             "uid": "df4xyze8t7nk0a"
           },
           "editorMode": "code",
-          "expr": "dataset_refinment_progress or vector(0)",
-          "legendFormat": "__auto",
-          "range": true,
+          "exemplar": false,
+          "expr": "dataset_refinment_progress",
+          "instant": true,
+          "interval": "",
+          "legendFormat": "Dataset generation",
+          "range": false,
           "refId": "A"
         }
       ],
@@ -1076,7 +1079,7 @@
       },
       "id": 12,
       "options": {
-        "afterRender": "window.triggerAction = async (id, message, guard) => {\r\n  const baseUrl = 'http://localhost:8003/trace';\r\n\r\n  const params = new URLSearchParams({\r\n    finding_id: id\r\n  });\r\n\r\n  const fullUrl = `${baseUrl}?${params.toString()}`;\r\n\r\n  console.log(`Sending GET request to: ${fullUrl}`);\r\n\r\n  try {\r\n    const response = await fetch(fullUrl);\r\n\r\n    if (response.ok) {\r\n      console.log(`Trace request successfully initiated for ID: ${id}. Check server logs for full URL.`);\r\n    } else {\r\n      console.log(`Trace failed! Server returned error: ${response.status}. Check console (F12).`);\r\n    }\r\n  } catch (error) {\r\n    console.error('Network Error:', error);\r\n    const errorMessage = 'Network error occurred. The browser cannot reach the specified endpoint.';\r\n    console.error(errorMessage);\r\n  }\r\n};\r\n\r\nsetTimeout(() => {\r\n  const rows = document.querySelectorAll(\"#findings-table tbody tr\");\r\n  const seen = new Set();\r\n  let statusMessage = '';\r\n\r\n  rows.forEach(row => {\r\n    const cells = row.querySelectorAll(\"td\");\r\n\r\n    if (cells.length < 4) {\r\n      return;\r\n    }\r\n\r\n    const id = cells[0].innerText.trim();\r\n    const model = cells[1].innerText.trim();\r\n    const guard = cells[2].innerText.trim();\r\n    const message = cells[3].innerText.trim();\r\n\r\n    const key = `${id}|${model}|${guard}|${message}`;\r\n\r\n    if (seen.has(key) || !id) {\r\n      row.remove();\r\n    } else {\r\n      seen.add(key);\r\n    }\r\n  });\r\n\r\n  const count = seen.size;\r\n\r\n  const statusDiv = document.querySelector(\"div[style*='margin-bottom']\");\r\n\r\n  if (statusDiv) }\r\n\r\n}, 10);",
+        "afterRender": "window.triggerAction = async (id, message, guard) => {\r\n  const baseUrl = 'http://localhost:8003/trace';\r\n\r\n  const params = new URLSearchParams({\r\n    finding_id: id\r\n  });\r\n\r\n  const fullUrl = `${baseUrl}?${params.toString()}`;\r\n\r\n  console.log(`Sending GET request to: ${fullUrl}`);\r\n\r\n  try {\r\n    const response = await fetch(fullUrl);\r\n\r\n    if (response.ok) {\r\n      console.log(`Trace request successfully initiated for ID: ${id}. Check server logs for full URL.`);\r\n    } else {\r\n      console.log(`Trace failed! Server returned error: ${response.status}. Check console (F12).`);\r\n    }\r\n  } catch (error) {\r\n    console.error('Network Error:', error);\r\n    const errorMessage = 'Network error occurred. The browser cannot reach the specified endpoint.';\r\n    console.error(errorMessage);\r\n  }\r\n};\r\n\r\nsetTimeout(() => {\r\n  const rows = document.querySelectorAll(\"#findings-table tbody tr\");\r\n  const seen = new Set();\r\n  let statusMessage = '';\r\n\r\n  rows.forEach(row => {\r\n    const cells = row.querySelectorAll(\"td\");\r\n\r\n    if (cells.length < 4) {\r\n      return;\r\n    }\r\n\r\n    const id = cells[0].innerText.trim();\r\n    const model = cells[1].innerText.trim();\r\n    const guard = cells[2].innerText.trim();\r\n    const message = cells[3].innerText.trim();\r\n\r\n    const key = `${id}|${model}|${guard}|${message}`;\r\n\r\n    if (seen.has(key) || !id) {\r\n      row.remove();\r\n    } else {\r\n      seen.add(key);\r\n    }\r\n  });\r\n\r\n  const count = seen.size;\r\n\r\n  const statusDiv = document.querySelector(\"div[style*='margin-bottom']\");\r\n\r\n  if (statusDiv) {\r\n    // Add whatever you want to do with statusDiv here\r\n  }\r\n\r\n}, 10);",
         "content": "<table id=\"findings-table\" style=\"width:100%; border-collapse:collapse;\">\n<thead>\n<tr style=\"border-bottom:2px solid #444; text-align:left;\">\n<th style=\"padding:8px;\">timestamp</th>\n<th style=\"padding:8px;\">Model</th>\n<th style=\"padding:8px;\">Prompt</th>\n<th style=\"padding:8px;\">Answer</th>\n<th style=\"padding:8px;\">Action</th>\n</tr>\n</thead>\n<tbody>\n{{#each data}}\n<tr style=\"border-bottom:1px solid #333;\">\n<td style=\"padding:8px;\">{{this.timestamp}}</td>\n<td style=\"padding:8px;\">{{this.model}}</td>\n<td style=\"padding:8px;\">{{this.prompt}}</td>\n<td style=\"padding:8px;\">{{this.answer}}</td>\n<td style=\"padding:8px;\">\n<button style=\"background:#3274d9;color:white;border:none;padding:5px 10px;cursor:pointer;\"\nonclick='triggerAction(\"{{this.id}}\", \"{{json this.message}}\", \"{{this.guard}}\")'>\nEvaluate\n</button>\n</td>\n</tr>\n{{/each}}\n</tbody>\n</table>",
         "contentPartials": [],
         "defaultContent": "",
@@ -1215,18 +1218,19 @@
     }
   ],
   "preload": false,
+  "refresh": "5s",
   "schemaVersion": 42,
   "tags": [],
   "templating": {
     "list": []
   },
   "time": {
-    "from": "now-15m",
+    "from": "now-5m",
     "to": "now"
   },
   "timepicker": {},
   "timezone": "browser",
   "title": "Sentinel Trace 3",
   "uid": "af4zmifvoffggf",
-  "version": 45
+  "version": 49
 }
