@@ -83,12 +83,24 @@ async def process_prompt(prompt_id, prompt_text):
         # tqdm.write(prompt_text + "//////")
         # tqdm.write(frontier_text + "//////")
         # tqdm.write(guard_text + "//////")
+        entry = {
+                "prompt_id" : prompt_id,
+                "prompt" : prompt_text,
+                "asnwer" : frontier_text,
+                "guard_rating" : safety_rating,
+                "guard_model" : guard_model_id,
+                "model" : frontier_model_id
+            }
+
         if "Unsafe" in reprompted_guard_text:
-            reprompting_worked = False
+            entry["refusal"] = False
+            entry["rejected_answer"] = "NULL"
             # tqdm.write("FAILED")
             return_item = None
         else:
-            reprompting_worked = True
+            entry["refusal"] = True
+            entry["asnwer"] = reprompted_frontier_text
+            entry["rejected_answer"] = frontier_text
             # tqdm.write("SUCCESS")
             # return_item = [prompt_text, frontier_text, reprompted_frontier_text]
             return_item = {
@@ -101,15 +113,7 @@ async def process_prompt(prompt_id, prompt_text):
         # tqdm.write(reprompted_guard_text + "//////")
 
         # Now send an entry to DB
-        entry = {
-                "prompt_id" : prompt_id,
-                "prompt" : prompt_text,
-                "answer" : frontier_text,
-                "refusal" : reprompting_worked,
-                "guard_rating" : safety_rating,
-                "guard_model" : guard_model_id,
-                "model" : frontier_model_id
-            }
+        
         response = requests.post(f"{DATABASE_URL}/data", json=entry)
         return return_item
         

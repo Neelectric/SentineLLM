@@ -43,6 +43,7 @@ def initialize_db():
                     prompt_id INTEGER NOT NULL,
                     prompt TEXT NOT NULL,
                     answer TEXT NOT NULL,
+                    rejected_answer TEXT NOT NULL,
                     refusal INTEGER NOT NULL,
                     guard_rating INTEGER NOT NULL,
                     guard_model TEXT NOT NULL,

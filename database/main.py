@@ -65,6 +65,7 @@ async def post_data_entry(entry: Dict[str, Any] = Body(
         guard_rating = 1 if entry["guard_rating"] == "safe" else 0
         guard_model = entry["guard_model"]
         model_name = entry["model"]
+        rejected_answer = entry["rejected_asnwer"]
     except KeyError as e:
         raise HTTPException(status_code=422, detail=f"Missing required field: {e.args[0]}")
     except TypeError:
@@ -78,14 +79,14 @@ async def post_data_entry(entry: Dict[str, Any] = Body(
             cursor = conn.cursor()
             cursor.execute(
                 """
-                INSERT INTO data_entries (prompt_id, prompt, answer, refusal, guard_rating, guard_model, model, timestamp)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                INSERT INTO data_entries (prompt_id, prompt, answer, rejected_answer, refusal, guard_rating, guard_model, model, timestamp)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
                 """,
-                (prompt_id, prompt, answer, refusal, guard_rating, guard_model, model_name, current_time)
+                (prompt_id, prompt, answer, rejected_answer, refusal, guard_rating, guard_model, model_name, current_time)
             )
             # The context manager will handle conn.commit()
             new_id = cursor.lastrowid
-            register_data_finding(prompt_id, model_name, guard_model, prompt, refusal)
+            register_data_finding(prompt_id, model_name, guard_model, prompt, answer, refusal)
             
         return {
             "message": "Data logged successfully",
