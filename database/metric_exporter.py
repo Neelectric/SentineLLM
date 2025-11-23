@@ -24,7 +24,7 @@ DATASET_REFINEMENT_PROGRESS = Gauge(
 )
 
 def register_data_finding(id: str, model_name: str, guard_name: str, prompt: str, answer: str, refusal: str):
-    REGISTERED_LABELS.add((model_name, guard_name))
+    REGISTERED_LABELS.add((model_name, guard_name, str(refusal)))  
     DATA_FINDINGS_TOTAL.labels(model=model_name, guard=guard_name, refusal=str(refusal)).inc()
     LATEST_FINDING_INFO.info({
         'id': str(id),
@@ -38,8 +38,9 @@ def register_data_finding(id: str, model_name: str, guard_name: str, prompt: str
 
 def reset_findings():
     labels_to_wipe = list(REGISTERED_LABELS)
-    for model, guard in labels_to_wipe:
-            DATA_FINDINGS_TOTAL.labels(model=model, guard=guard).set(0)
+    for model, guard, refusal in labels_to_wipe: 
+            DATA_FINDINGS_TOTAL.labels(model=model, guard=guard, refusal=refusal).set(0)
+
 
 def register_trace(id: str, text: str):
      TRACE_INFO.info({
@@ -48,7 +49,7 @@ def register_trace(id: str, text: str):
      })
 
 def register_refinment_progress(stage: int):
-    DATASET_REFINEMENT_PROGRESS.set(int)
+    DATASET_REFINEMENT_PROGRESS.set(stage)
 
 def start_metrics_server(port=8004):
     """

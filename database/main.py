@@ -5,11 +5,12 @@ from database import initialize_db, get_db_connection
 from metric_exporter import start_metrics_server, register_data_finding, reset_findings, register_trace, register_refinment_progress
 from fastapi.middleware.cors import CORSMiddleware
 import random
-
+from datasets import Dataset
 from olmo_trace import olmo_trace
-#from transformers import AutoTokenizer
+from transformers import AutoTokenizer
 
-#frontier_tokenizer = AutoTokenizer.from_pretrained("meta-llama/Llama-2-7b-hf") # for some godforsaken reason OLMoTrace infinigram API uses llama tokenizer instead of their own olmo models
+frontier_tokenizer = AutoTokenizer.from_pretrained("meta-llama/Llama-2-7b-hf") # for some godforsaken reason OLMoTrace infinigram API uses llama tokenizer instead of their own olmo models
+frontier_model_id = "allenai/OLMo-2-0425-1B-Instruct"
 
 # --- 1. FastAPI Initialization ---
 
@@ -142,7 +143,7 @@ def get_all_data() -> List[Dict[str, Any]]:
         print(f"Error fetching data: {e}")
         raise HTTPException(status_code=500, detail="Failed to retrieve data due to an internal database error.")
     
-@app.options("/wipedb", response_model=bool)
+@app.get("/wipedb", response_model=bool)
 def wipe_db() -> bool:
     print("database wipe")
     try:
@@ -226,9 +227,9 @@ async def trace_origin(finding_id: int):
             frontier_model_name = data_entry["model"]
             prompt = data_entry["prompt"]
             answer = data_entry["answer"]
-            #html_return_string = await olmo_trace(frontier_model_name, prompt, answer, frontier_tokenizer)
-            # print(html_return_string)
-            #register_trace(finding_id, html_return_string)
+            html_return_string = await olmo_trace(frontier_model_name, prompt, answer, frontier_tokenizer)
+            print(html_return_string)
+            register_trace(finding_id, html_return_string)
         
         
     except HTTPException:
