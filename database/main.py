@@ -171,7 +171,7 @@ async def trace_origin(finding_id: int):
             prompt = data_entry["prompt"]
             answer = data_entry["answer"]
             html_return_string = await olmo_trace(frontier_model_name, prompt, answer, frontier_tokenizer)
-            print(html_return_string)
+            # print(html_return_string)
             register_trace(finding_id, html_return_string)
         
         
