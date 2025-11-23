@@ -86,7 +86,7 @@ async def post_data_entry(entry: Dict[str, Any] = Body(
             )
             # The context manager will handle conn.commit()
             new_id = cursor.lastrowid
-            register_data_finding(new_id, model, guard_model, prompt, refusal)
+            register_data_finding(new_id, model_name, guard_model, prompt, refusal)
             
         return {
             "message": "Data logged successfully",
