@@ -17,4 +17,4 @@ def create_dataset():
     ds = wgm_prompts + wjb_prompts
     random.shuffle(ds)
     print(f"Adding {len(wgm_prompts)} prompts from WildGuardMix and {len(wjb_prompts)} from WildJailBreak")
-    return ds[0:200]
+    return ds

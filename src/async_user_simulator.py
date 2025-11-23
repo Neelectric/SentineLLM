@@ -89,7 +89,12 @@ async def process_prompt(prompt_id, prompt_text):
             return_item = None
         else:
             tqdm.write("SUCCESS")
-            return_item = [prompt_text, frontier_text, reprompted_frontier_text]
+            # return_item = [prompt_text, frontier_text, reprompted_frontier_text]
+            return_item = {
+                "prompt": prompt_text, 
+                "chosen": reprompted_frontier_text,
+                "rejected": frontier_text
+            }
         tqdm.write("Tried to reprompt model, and second generation was")
         tqdm.write(reprompted_frontier_text + "//////")
         tqdm.write(reprompted_guard_text + "//////")
@@ -121,15 +126,12 @@ async def main():
         dpo_thruple = await dpo_task
         dpo_prompts.append(dpo_thruple)
         await asyncio.sleep(np.random.exponential(1/RATE))
-    print("PRINTING DPO PROMPTS")
-    print(dpo_prompts)
     dpo_prompts = [elt for elt in dpo_prompts if elt is not None]
-    print("#" * 500)
-    print("PRINTING DPO PROMPTS WITHOUT NONE")
-    print(dpo_prompts)
-    print("#" * 500)
     ds = Dataset.from_list(dpo_prompts)
     print(ds)
+    model_name = frontier_model_id.split("/")[1]
+    ds_name = "Neelectric/" + model_name + "_DPO"
+    ds.push_to_hub(ds_name, private=True)
     await asyncio.sleep(60)
 
 if __name__ == "__main__":

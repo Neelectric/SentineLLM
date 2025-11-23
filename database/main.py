@@ -73,7 +73,7 @@ async def post_data_entry(entry: Dict[str, Any] = Body(
         raise HTTPException(status_code=422, detail=f"Missing required field: {e.args[0]}")
     except TypeError:
         raise HTTPException(status_code=400, detail="Request body must be a JSON object with 'service_name' and 'data_payload'.")
-    pre_train_docs = await olmo_trace(model_name, prompt, answer, frontier_tokenizer)
+    # pre_train_docs = await olmo_trace(model_name, prompt, answer, frontier_tokenizer)
     
     current_time = datetime.now().isoformat()
 
