@@ -180,7 +180,7 @@ def refine_data():
             register_refinment_progress(random.randint(60,80))
             time.sleep(2)
             register_refinment_progress(random.randint(85,95))
-            ds.push_to_hub(ds_name, private=True)
+            ds.push_to_hub(ds_name, private=False)
             register_refinment_progress(100)
 
     except Exception as e:

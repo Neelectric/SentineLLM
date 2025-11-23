@@ -134,11 +134,6 @@ async def main():
     dpo_prompts = await asyncio.gather(*tasks)
     dpo_prompts = [elt for elt in dpo_prompts if elt is not None]
 
-    # ds = Dataset.from_list(dpo_prompts)
-    # print(ds)
-    # model_name = frontier_model_id.split("/")[1]
-    # ds_name = "Neelectric/" + model_name + "_DPO"
-    # ds.push_to_hub(ds_name, private=True)
     await asyncio.sleep(60)
 
 if __name__ == "__main__":
