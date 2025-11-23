@@ -5,11 +5,12 @@ from database import initialize_db, get_db_connection
 from metric_exporter import start_metrics_server, register_data_finding, reset_findings, register_trace, register_refinment_progress
 from fastapi.middleware.cors import CORSMiddleware
 import random
-
+from datasets import Dataset
 from olmo_trace import olmo_trace
-#from transformers import AutoTokenizer
+from transformers import AutoTokenizer
 
-#frontier_tokenizer = AutoTokenizer.from_pretrained("meta-llama/Llama-2-7b-hf") # for some godforsaken reason OLMoTrace infinigram API uses llama tokenizer instead of their own olmo models
+frontier_tokenizer = AutoTokenizer.from_pretrained("meta-llama/Llama-2-7b-hf") # for some godforsaken reason OLMoTrace infinigram API uses llama tokenizer instead of their own olmo models
+frontier_model_id = "allenai/OLMo-2-0425-1B-Instruct"
 
 # --- 1. FastAPI Initialization ---
 
@@ -143,7 +144,7 @@ def get_all_data() -> List[Dict[str, Any]]:
         print(f"Error fetching data: {e}")
         raise HTTPException(status_code=500, detail="Failed to retrieve data due to an internal database error.")
     
-@app.options("/wipedb", response_model=bool)
+@app.get("/wipedb", response_model=bool)
 def wipe_db() -> bool:
     print("database wipe")
     try:
@@ -192,24 +193,44 @@ def refine_data():
 
 @app.get("/trace")
 async def trace_origin(finding_id: int):
-    print("trace origin triggered")
+    print(f"trace origin triggered {finding_id}")
     try:
         with get_db_connection() as conn:
             cursor = conn.cursor()
-            cursor.execute("SELECT * FROM data_entries WHERE id = ?", (finding_id))
+            cursor.execute("SELECT * FROM data_entries WHERE prompt_id = ?", (finding_id,))  # Add comma!
             row = cursor.fetchone()
+            
             if row is None:
-                raise HTTPException(status_code=404, detail=f"Entry with id {finding_id} not found")
+                # Debug: Find closest prompt_ids
+                cursor.execute("""
+                    SELECT prompt_id FROM data_entries 
+                    WHERE prompt_id <= ? 
+                    ORDER BY prompt_id DESC LIMIT 5
+                """, (finding_id,))
+                before = [r[0] for r in cursor.fetchall()]
+                
+                cursor.execute("""
+                    SELECT prompt_id FROM data_entries 
+                    WHERE prompt_id >= ? 
+                    ORDER BY prompt_id ASC LIMIT 5
+                """, (finding_id,))
+                after = [r[0] for r in cursor.fetchall()]
+                
+                print(f"prompt_id {finding_id} not found. Closest before: {before}, after: {after}")
+                raise HTTPException(
+                    status_code=404, 
+                    detail=f"Entry with prompt_id {finding_id} not found. Closest: {before + after}"
+                )
+            
             data_entry = dict(row)
             print(data_entry)
             
-            # return data_entry
             frontier_model_name = data_entry["model"]
             prompt = data_entry["prompt"]
-            answer = data_entry["answer"]
-            #html_return_string = await olmo_trace(frontier_model_name, prompt, answer, frontier_tokenizer)
-            # print(html_return_string)
-            #register_trace(finding_id, html_return_string)
+            answer = data_entry["rejected_answer"]
+            html_return_string = await olmo_trace(frontier_model_name, prompt, answer, frontier_tokenizer)
+            print(html_return_string)
+            register_trace(finding_id, html_return_string)
         
         
     except HTTPException:
