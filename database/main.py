@@ -49,8 +49,7 @@ def post_data_entry(entry: Dict[str, Any] = Body(
     """
     #print("a")
     # temporarily hardcoding frontier_model_id
-    frontier_model_id = "allenai/OLMo-2-0425-1B-Instruct"
-    pre_train_docs = olmo_trace(frontier_model_id, prompt, answer, frontier_tokenizer)
+    
     
     try:
         prompt_id = entry["prompt_id"]
@@ -64,7 +63,8 @@ def post_data_entry(entry: Dict[str, Any] = Body(
         raise HTTPException(status_code=422, detail=f"Missing required field: {e.args[0]}")
     except TypeError:
         raise HTTPException(status_code=400, detail="Request body must be a JSON object with 'service_name' and 'data_payload'.")
-
+    pre_train_docs = olmo_trace(model, prompt, answer, frontier_tokenizer)
+    
     current_time = datetime.now().isoformat()
 
     try:
