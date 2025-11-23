@@ -41,7 +41,7 @@ def startup_event():
 # --- 3. API Endpoints ---
 
 @app.post("/data", status_code=201)
-def post_data_entry(entry: Dict[str, Any] = Body(
+async def post_data_entry(entry: Dict[str, Any] = Body(
     ..., 
     example={
         "prompt_id": "1", 
@@ -68,12 +68,12 @@ def post_data_entry(entry: Dict[str, Any] = Body(
         refusal = entry["refusal"]
         guard_rating = 1 if entry["guard_rating"] == "safe" else 0
         guard_model = entry["guard_model"]
-        model = entry["model"]
+        model_name = entry["model"]
     except KeyError as e:
         raise HTTPException(status_code=422, detail=f"Missing required field: {e.args[0]}")
     except TypeError:
         raise HTTPException(status_code=400, detail="Request body must be a JSON object with 'service_name' and 'data_payload'.")
-    pre_train_docs = olmo_trace(model, prompt, answer, frontier_tokenizer)
+    pre_train_docs = await olmo_trace(model_name, prompt, answer, frontier_tokenizer)
     
     current_time = datetime.now().isoformat()
 
@@ -86,11 +86,11 @@ def post_data_entry(entry: Dict[str, Any] = Body(
                 INSERT INTO data_entries (prompt_id, prompt, answer, refusal, guard_rating, guard_model, model, timestamp)
                 VALUES (?, ?, ?, ?, ?, ?, ?, ?)
                 """,
-                (prompt_id, prompt, answer, refusal, guard_rating, guard_model, model, current_time)
+                (prompt_id, prompt, answer, refusal, guard_rating, guard_model, model_name, current_time)
             )
             # The context manager will handle conn.commit()
             new_id = cursor.lastrowid
-            register_data_finding(model, guard_model)
+            register_data_finding(prompt_id, model_name, guard_model, prompt)
             
         return {
             "message": "Data logged successfully",
