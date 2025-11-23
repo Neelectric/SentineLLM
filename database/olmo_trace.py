@@ -74,11 +74,24 @@ async def olmo_trace(frontier_model_id, prompt_text, frontier_text, frontier_tok
                 if lcs == all_documents[-1]["longest_common_substring"]:
                     print("same lcs...")
                     continue
-            all_documents.append(doc_result)
-            
-    print(f"\nTotal documents retrieved: {len(all_documents)}")
+            return_object = {
+                "span": doc_result["spans"][0][0],
+                "longest_common_substring": lcs,
+            }
+            all_documents.append(return_object)
     
-    return all_documents
+    print(f"\nTotal documents retrieved: {len(all_documents)}")
+    return_string = ""
+    for doc in all_documents:
+        span = doc["span"]
+        lcs = doc["longest_common_substring"]
+        
+        marked_span = span.replace(lcs, f"<marked>{lcs}</marked>")
+        return_string += marked_span + "<hr />"
+
+    return return_string
+
+            
 
 
 def sub_string_matching(frontier_text, span):

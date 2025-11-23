@@ -69,7 +69,6 @@ async def post_data_entry(entry: Dict[str, Any] = Body(
         raise HTTPException(status_code=422, detail=f"Missing required field: {e.args[0]}")
     except TypeError:
         raise HTTPException(status_code=400, detail="Request body must be a JSON object with 'service_name' and 'data_payload'.")
-    pre_train_docs = await olmo_trace(model_name, prompt, answer, frontier_tokenizer)
     
     current_time = datetime.now().isoformat()
 
@@ -86,7 +85,7 @@ async def post_data_entry(entry: Dict[str, Any] = Body(
             )
             # The context manager will handle conn.commit()
             new_id = cursor.lastrowid
-            register_data_finding(new_id, model_name, guard_model, prompt, refusal)
+            register_data_finding(prompt_id, model_name, guard_model, prompt, refusal)
             
         return {
             "message": "Data logged successfully",
@@ -156,8 +155,31 @@ def refine_data():
     print("Now the cool stuff should happen")    
 
 @app.get("/trace")
-def trace_origin(finding_id: int):
-    register_trace(finding_id, f"The chosen <marked> number is {random.randint(1,6)}</marked>")
+async def trace_origin(finding_id: int):
+    try:
+        with get_db_connection() as conn:
+            cursor = conn.cursor()
+            cursor.execute("SELECT * FROM data_entries WHERE prompt_id = ?", (finding_id,))
+            row = cursor.fetchone()
+            if row is None:
+                raise HTTPException(status_code=404, detail=f"Entry with id {finding_id} not found")
+            data_entry = dict(row)
+            print(data_entry)
+            
+            # return data_entry
+            frontier_model_name = data_entry["model"]
+            prompt = data_entry["prompt"]
+            answer = data_entry["answer"]
+            html_return_string = await olmo_trace(frontier_model_name, prompt, answer, frontier_tokenizer)
+            print(html_return_string)
+            register_trace(finding_id, html_return_string)
+        
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        print(f"Error fetching data: {e}")
+        raise HTTPException(status_code=500, detail="Failed to retrieve data due to an internal database error.")
 
 # --- 4. Server Execution ---
 if __name__ == "__main__":

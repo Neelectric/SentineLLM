@@ -18,7 +18,7 @@ LATEST_FINDING_INFO = Info(
     'Context for the latest data finding that requires action.'
 )
 
-def register_data_finding(id: str, model_name: str, guard_name: str, prompt: str):
+def register_data_finding(id: str, model_name: str, guard_name: str, prompt: str, refusal: str):
     REGISTERED_LABELS.add((model_name, guard_name))
     DATA_FINDINGS_TOTAL.labels(model=model_name, guard=guard_name).inc()
     LATEST_FINDING_INFO.info({
@@ -26,6 +26,7 @@ def register_data_finding(id: str, model_name: str, guard_name: str, prompt: str
         'model': model_name,
         'guard': guard_name,
         'message': prompt,
+        'refusal': str(refusal),
         'timestamp': str(int(time.time() * 1000))
     })
 

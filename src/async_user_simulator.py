@@ -80,25 +80,25 @@ async def process_prompt(prompt_id, prompt_text):
         reprompted_guard_text = reprompted_guard_response.choices[0].message.content
         
         ### Printing!
-        tqdm.write(prompt_text + "//////")
-        tqdm.write(frontier_text + "//////")
-        tqdm.write(guard_text + "//////")
+        # tqdm.write(prompt_text + "//////")
+        # tqdm.write(frontier_text + "//////")
+        # tqdm.write(guard_text + "//////")
         if "Unsafe" in reprompted_guard_text:
             reprompting_worked = False
-            tqdm.write("FAILED")
+            # tqdm.write("FAILED")
             return_item = None
         else:
             reprompting_worked = True
-            tqdm.write("SUCCESS")
+            # tqdm.write("SUCCESS")
             # return_item = [prompt_text, frontier_text, reprompted_frontier_text]
             return_item = {
                 "prompt": prompt_text, 
                 "chosen": reprompted_frontier_text,
                 "rejected": frontier_text
             }
-        tqdm.write("Tried to reprompt model, and second generation was")
-        tqdm.write(reprompted_frontier_text + "//////")
-        tqdm.write(reprompted_guard_text + "//////")
+        # tqdm.write("Tried to reprompt model, and second generation was")
+        # tqdm.write(reprompted_frontier_text + "//////")
+        # tqdm.write(reprompted_guard_text + "//////")
 
         # Now send an entry to DB
         entry = {
