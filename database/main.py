@@ -7,9 +7,9 @@ from fastapi.middleware.cors import CORSMiddleware
 import random
 
 from olmo_trace import olmo_trace
-from transformers import AutoTokenizer
+#from transformers import AutoTokenizer
 
-frontier_tokenizer = AutoTokenizer.from_pretrained("meta-llama/Llama-2-7b-hf") # for some godforsaken reason OLMoTrace infinigram API uses llama tokenizer instead of their own olmo models
+#frontier_tokenizer = AutoTokenizer.from_pretrained("meta-llama/Llama-2-7b-hf") # for some godforsaken reason OLMoTrace infinigram API uses llama tokenizer instead of their own olmo models
 
 # --- 1. FastAPI Initialization ---
 
@@ -151,9 +151,30 @@ def wipe_db() -> bool:
         print(f"Error deleting data: {e}")
         raise HTTPException(status_code=500, detail="Failed to delete data due to an internal database error.")
     
-@app.options("/refine")
+@app.get("/refine")
 def refine_data():
-    print("Now the cool stuff should happen")    
+    """
+    dpo_prompts = await asyncio.gather(*tasks)
+    dpo_prompts = [elt for elt in dpo_prompts if elt is not None]
+
+    ds = Dataset.from_list(dpo_prompts)
+    print(ds)
+    model_name = frontier_model_id.split("/")[1]
+    ds_name = "Neelectric/" + model_name + "_DPO"
+    ds.push_to_hub(ds_name, private=True)
+    """
+    try:
+        with get_db_connection() as conn:
+            cursor = conn.cursor()
+            cursor.execute('SELECT * FROM data_entries WHERE rejected_answer != "NULL" ORDER BY timestamp DESC')
+            rows = cursor.fetchall()
+            data_entries = [dict(row) for row in rows]
+            print(data_entries)
+
+    except Exception as e:
+        print(f"Error fetching data: {e}")
+        raise HTTPException(status_code=500, detail="Failed to retrieve data due to an internal database error.")
+    
 
 @app.get("/trace")
 async def trace_origin(finding_id: int):
@@ -171,9 +192,9 @@ async def trace_origin(finding_id: int):
             frontier_model_name = data_entry["model"]
             prompt = data_entry["prompt"]
             answer = data_entry["answer"]
-            html_return_string = await olmo_trace(frontier_model_name, prompt, answer, frontier_tokenizer)
+            #html_return_string = await olmo_trace(frontier_model_name, prompt, answer, frontier_tokenizer)
             # print(html_return_string)
-            register_trace(finding_id, html_return_string)
+            #register_trace(finding_id, html_return_string)
         
         
     except HTTPException:
