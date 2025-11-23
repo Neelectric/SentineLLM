@@ -1,3 +1,4 @@
+import time
 from fastapi import FastAPI, HTTPException, Body
 from datetime import datetime
 from typing import List, Dict, Any
@@ -161,28 +162,24 @@ def wipe_db() -> bool:
     
 @app.get("/refine")
 def refine_data():
-    """
-    dpo_prompts = await asyncio.gather(*tasks)
-    dpo_prompts = [elt for elt in dpo_prompts if elt is not None]
-
-    ds = Dataset.from_list(dpo_prompts)
-    print(ds)
-    model_name = frontier_model_id.split("/")[1]
-    ds_name = "Neelectric/" + model_name + "_DPO"
-    ds.push_to_hub(ds_name, private=True)
-    """
     register_refinment_progress(0)
+    time.sleep(1)
+    register_refinment_progress(random.randint(3,10))
     try:
         with get_db_connection() as conn:
-            register_refinment_progress(15)
+            register_refinment_progress(random.randint(13,25))
+            time.sleep(2)
             cursor = conn.cursor()
             cursor.execute('SELECT prompt, answer, rejected_answer FROM data_entries WHERE rejected_answer != "NULL" ORDER BY timestamp DESC')
             rows = cursor.fetchall()
-            register_refinment_progress(50)
+            register_refinment_progress(random.randint(34,50))
+            time.sleep(3)
             ds = Dataset.from_list([dict(row) for row in rows])
             model_name = frontier_model_id.split("/")[1]
             ds_name = "Neelectric/" + model_name + "_DPO"
-            register_refinment_progress(75)
+            register_refinment_progress(random.randint(60,80))
+            time.sleep(2)
+            register_refinment_progress(random.randint(85,95))
             ds.push_to_hub(ds_name, private=True)
             register_refinment_progress(100)
 
