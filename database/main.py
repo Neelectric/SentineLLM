@@ -48,7 +48,9 @@ def post_data_entry(entry: Dict[str, Any] = Body(
     Expects 'service_name' (str) and 'data_payload' (dict) in the request body.
     """
     #print("a")
-    pre_train_docs = olmo_trace(model, prompt, answer, frontier_tokenizer)
+    # temporarily hardcoding frontier_model_id
+    frontier_model_id = "allenai/OLMo-2-0425-1B-Instruct"
+    pre_train_docs = olmo_trace(frontier_model_id, prompt, answer, frontier_tokenizer)
     
     try:
         prompt_id = entry["prompt_id"]
