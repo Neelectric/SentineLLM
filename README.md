@@ -45,7 +45,7 @@ async def handle_button_press(request: Request):
 Serving the LLM
 ```
 CUDA_VISIBLE_DEVICES=0 vllm serve \
-allenai/OLMo-2-1124-13B-Instruct \
+allenai/OLMo-2-0425-1B-Instruct \
 --port 8001 \
 --max-model-len 4096 \
 --gpu-memory-utilization 0.9
@@ -54,7 +54,7 @@ allenai/OLMo-2-1124-13B-Instruct \
 Serving the guard
 ```
 CUDA_VISIBLE_DEVICES=1 vllm serve \
-Qwen/Qwen3Guard-Gen-8B \
+Qwen/Qwen3Guard-Gen-0.6B \
 --port 8002 \
 --max-model-len 8192 \
 --gpu-memory-utilization 0.9
