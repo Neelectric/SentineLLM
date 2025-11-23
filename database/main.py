@@ -85,7 +85,7 @@ async def post_data_entry(entry: Dict[str, Any] = Body(
             )
             # The context manager will handle conn.commit()
             new_id = cursor.lastrowid
-            register_data_finding(prompt_id, model_name, guard_model, prompt, refusal)
+            register_data_finding(new_id, model_name, guard_model, prompt, refusal)
             
         return {
             "message": "Data logged successfully",
@@ -159,7 +159,7 @@ async def trace_origin(finding_id: int):
     try:
         with get_db_connection() as conn:
             cursor = conn.cursor()
-            cursor.execute("SELECT * FROM data_entries WHERE prompt_id = ?", (finding_id,))
+            cursor.execute("SELECT * FROM data_entries WHERE id = ?", (finding_id,))
             row = cursor.fetchone()
             if row is None:
                 raise HTTPException(status_code=404, detail=f"Entry with id {finding_id} not found")
@@ -184,6 +184,7 @@ async def trace_origin(finding_id: int):
 # --- 4. Server Execution ---
 if __name__ == "__main__":
     import uvicorn
+    wipe_db()
     start_metrics_server()
     uvicorn.run("main:app", host="0.0.0.0", port=8003)
     
