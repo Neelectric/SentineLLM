@@ -120,13 +120,15 @@ async def process_prompt(prompt_id, prompt_text):
 
 async def main():
     start_metrics_server()
-    dpo_prompts = []
+    tasks = []
     for i, prompt in tqdm(enumerate(prompts), total=len(prompts)):
-        dpo_task = asyncio.create_task(process_prompt(i, prompt))
-        dpo_thruple = await dpo_task
-        dpo_prompts.append(dpo_thruple)
+        task = asyncio.create_task(process_prompt(i, prompt))
+        tasks.append(task)
         await asyncio.sleep(np.random.exponential(1/RATE))
+        
+    dpo_prompts = await asyncio.gather(*tasks)
     dpo_prompts = [elt for elt in dpo_prompts if elt is not None]
+
     ds = Dataset.from_list(dpo_prompts)
     print(ds)
     model_name = frontier_model_id.split("/")[1]
