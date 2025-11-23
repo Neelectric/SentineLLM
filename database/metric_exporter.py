@@ -5,7 +5,7 @@ REGISTERED_LABELS = set()
 DATA_FINDINGS_TOTAL = Gauge(
     'data_findings_total',
     'Total number of data findings.',
-    ['model', 'guard'] 
+    ['model', 'guard', 'refusal'] 
 )
 
 TRACE_INFO =  Info(
@@ -20,7 +20,7 @@ LATEST_FINDING_INFO = Info(
 
 def register_data_finding(id: str, model_name: str, guard_name: str, prompt: str, refusal: str):
     REGISTERED_LABELS.add((model_name, guard_name))
-    DATA_FINDINGS_TOTAL.labels(model=model_name, guard=guard_name).inc()
+    DATA_FINDINGS_TOTAL.labels(model=model_name, guard=guard_name, refusal=str(refusal)).inc()
     LATEST_FINDING_INFO.info({
         'id': str(id),
         'model': model_name,
