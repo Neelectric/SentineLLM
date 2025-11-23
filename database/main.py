@@ -2,7 +2,7 @@ from fastapi import FastAPI, HTTPException, Body
 from datetime import datetime
 from typing import List, Dict, Any
 from database import initialize_db, get_db_connection
-from metric_exporter import start_metrics_server, register_data_finding, reset_findings, register_trace
+from metric_exporter import start_metrics_server, register_data_finding, reset_findings, register_trace, register_refinment_progress
 from fastapi.middleware.cors import CORSMiddleware
 import random
 
@@ -123,6 +123,7 @@ def get_all_data() -> List[Dict[str, Any]]:
         print(f"Error fetching data: {e}")
         raise HTTPException(status_code=500, detail="Failed to retrieve data due to an internal database error.")
     
+
 @app.get("/data_unsafe", response_model=List[Dict[str, Any]])
 def get_all_data() -> List[Dict[str, Any]]:
     """
@@ -168,13 +169,20 @@ def refine_data():
     ds_name = "Neelectric/" + model_name + "_DPO"
     ds.push_to_hub(ds_name, private=True)
     """
+    register_refinment_progress(0)
     try:
         with get_db_connection() as conn:
+            register_refinment_progress(15)
             cursor = conn.cursor()
-            cursor.execute('SELECT * FROM data_entries WHERE rejected_answer != "NULL" ORDER BY timestamp DESC')
+            cursor.execute('SELECT prompt, answer, rejected_answer FROM data_entries WHERE rejected_answer != "NULL" ORDER BY timestamp DESC')
             rows = cursor.fetchall()
-            data_entries = [dict(row) for row in rows]
-            print(data_entries)
+            register_refinment_progress(50)
+            ds = Dataset.from_list([dict(row) for row in rows])
+            model_name = frontier_model_id.split("/")[1]
+            ds_name = "Neelectric/" + model_name + "_DPO"
+            register_refinment_progress(75)
+            ds.push_to_hub(ds_name, private=True)
+            register_refinment_progress(100)
 
     except Exception as e:
         print(f"Error fetching data: {e}")
@@ -187,7 +195,7 @@ async def trace_origin(finding_id: int):
     try:
         with get_db_connection() as conn:
             cursor = conn.cursor()
-            cursor.execute("SELECT * FROM data_entries WHERE id = ?", (finding_id,))
+            cursor.execute("SELECT * FROM data_entries WHERE id = ?", (finding_id))
             row = cursor.fetchone()
             if row is None:
                 raise HTTPException(status_code=404, detail=f"Entry with id {finding_id} not found")
@@ -216,5 +224,4 @@ if __name__ == "__main__":
     
     start_metrics_server()
     uvicorn.run("main:app", host="0.0.0.0", port=8003)
-    
     

@@ -18,6 +18,11 @@ LATEST_FINDING_INFO = Info(
     'Context for the latest data finding that requires action.'
 )
 
+DATASET_REFINEMENT_PROGRESS = Gauge(
+     'dataset_refinment_progress',
+     'percentage progress for the dataset refiniment action'
+)
+
 def register_data_finding(id: str, model_name: str, guard_name: str, prompt: str, answer: str, refusal: str):
     REGISTERED_LABELS.add((model_name, guard_name))
     DATA_FINDINGS_TOTAL.labels(model=model_name, guard=guard_name, refusal=str(refusal)).inc()
@@ -41,6 +46,9 @@ def register_trace(id: str, text: str):
         'id': str(id),
         'text': text
      })
+
+def register_refinment_progress(stage: int):
+    DATASET_REFINEMENT_PROGRESS.set(int)
 
 def start_metrics_server(port=8004):
     """
