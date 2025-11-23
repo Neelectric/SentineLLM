@@ -162,24 +162,45 @@ def refine_data():
 
 @app.get("/trace")
 async def trace_origin(finding_id: int):
-    print("trace origin triggered")
+    print(f"trace origin triggered {finding_id}")
     try:
         with get_db_connection() as conn:
             cursor = conn.cursor()
-            cursor.execute("SELECT * FROM data_entries WHERE id = ?", (finding_id,))
+            
+            # Check if this prompt_id exists
+            cursor.execute("SELECT * FROM data_entries WHERE prompt_id = ?", (finding_id,))
             row = cursor.fetchone()
+            
             if row is None:
-                raise HTTPException(status_code=404, detail=f"Entry with id {finding_id} not found")
+                # Debug: Find closest prompt_ids
+                cursor.execute("""
+                    SELECT prompt_id FROM data_entries 
+                    WHERE prompt_id <= ? 
+                    ORDER BY prompt_id DESC LIMIT 5
+                """, (finding_id,))
+                before = [r[0] for r in cursor.fetchall()]
+                
+                cursor.execute("""
+                    SELECT prompt_id FROM data_entries 
+                    WHERE prompt_id >= ? 
+                    ORDER BY prompt_id ASC LIMIT 5
+                """, (finding_id,))
+                after = [r[0] for r in cursor.fetchall()]
+                
+                print(f"prompt_id {finding_id} not found. Closest before: {before}, after: {after}")
+                raise HTTPException(
+                    status_code=404, 
+                    detail=f"Entry with prompt_id {finding_id} not found. Closest: {before + after}"
+                )
+            
             data_entry = dict(row)
             print(data_entry)
             
-            # return data_entry
             frontier_model_name = data_entry["model"]
             prompt = data_entry["prompt"]
             answer = data_entry["answer"]
             html_return_string = await olmo_trace(frontier_model_name, prompt, answer, frontier_tokenizer)
-            # print(html_return_string)
-            register_trace(finding_id, html_return_string)
+            register_trace(data_entry["id"], html_return_string)
         
         
     except HTTPException:
