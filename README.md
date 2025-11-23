@@ -45,10 +45,10 @@ async def handle_button_press(request: Request):
 # How to serve the 'frontier' LLM and the guard on one GPU
 Serving the LLM
 ```
-CUDA_VISIBLE_DEVICES=1 vllm serve \
-allenai/OLMo-2-1124-13B-Instruct \
+CUDA_VISIBLE_DEVICES=0 vllm serve \
+allenai/OLMo-2-0425-1B-Instruct \
 --port 8001 \
---max-model-len 2048 \
+--max-model-len 4096 \
 --gpu-memory-utilization 0.9
 ```
 
@@ -57,8 +57,8 @@ Serving the guard
 CUDA_VISIBLE_DEVICES=1 vllm serve \
 Qwen/Qwen3Guard-Gen-0.6B \
 --port 8002 \
---max-model-len 2048 \
---gpu-memory-utilization 0.5
+--max-model-len 8192 \
+--gpu-memory-utilization 0.9
 ```
 
 
