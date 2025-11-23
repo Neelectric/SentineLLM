@@ -2,14 +2,14 @@ from fastapi import FastAPI, HTTPException, Body
 from datetime import datetime
 from typing import List, Dict, Any
 from database import initialize_db, get_db_connection
-from metric_exporter import start_metrics_server, register_data_finding, reset_findings, register_trace
+from metric_exporter import start_metrics_server, register_data_finding, reset_findings, register_trace, register_refinment_progress
 from fastapi.middleware.cors import CORSMiddleware
 import random
 
 from olmo_trace import olmo_trace
-from transformers import AutoTokenizer
+#from transformers import AutoTokenizer
 
-frontier_tokenizer = AutoTokenizer.from_pretrained("meta-llama/Llama-2-7b-hf") # for some godforsaken reason OLMoTrace infinigram API uses llama tokenizer instead of their own olmo models
+#frontier_tokenizer = AutoTokenizer.from_pretrained("meta-llama/Llama-2-7b-hf") # for some godforsaken reason OLMoTrace infinigram API uses llama tokenizer instead of their own olmo models
 
 # --- 1. FastAPI Initialization ---
 
@@ -123,6 +123,7 @@ def get_all_data() -> List[Dict[str, Any]]:
         print(f"Error fetching data: {e}")
         raise HTTPException(status_code=500, detail="Failed to retrieve data due to an internal database error.")
     
+
 @app.get("/data_unsafe", response_model=List[Dict[str, Any]])
 def get_all_data() -> List[Dict[str, Any]]:
     """
@@ -156,9 +157,37 @@ def wipe_db() -> bool:
         print(f"Error deleting data: {e}")
         raise HTTPException(status_code=500, detail="Failed to delete data due to an internal database error.")
     
-@app.options("/refine")
+@app.get("/refine")
 def refine_data():
-    print("Now the cool stuff should happen")    
+    """
+    dpo_prompts = await asyncio.gather(*tasks)
+    dpo_prompts = [elt for elt in dpo_prompts if elt is not None]
+
+    ds = Dataset.from_list(dpo_prompts)
+    print(ds)
+    model_name = frontier_model_id.split("/")[1]
+    ds_name = "Neelectric/" + model_name + "_DPO"
+    ds.push_to_hub(ds_name, private=True)
+    """
+    register_refinment_progress(0)
+    try:
+        with get_db_connection() as conn:
+            register_refinment_progress(15)
+            cursor = conn.cursor()
+            cursor.execute('SELECT prompt, answer, rejected_answer FROM data_entries WHERE rejected_answer != "NULL" ORDER BY timestamp DESC')
+            rows = cursor.fetchall()
+            register_refinment_progress(50)
+            ds = Dataset.from_list([dict(row) for row in rows])
+            model_name = frontier_model_id.split("/")[1]
+            ds_name = "Neelectric/" + model_name + "_DPO"
+            register_refinment_progress(75)
+            ds.push_to_hub(ds_name, private=True)
+            register_refinment_progress(100)
+
+    except Exception as e:
+        print(f"Error fetching data: {e}")
+        raise HTTPException(status_code=500, detail="Failed to retrieve data due to an internal database error.")
+    
 
 @app.get("/trace")
 async def trace_origin(finding_id: int):
@@ -166,9 +195,7 @@ async def trace_origin(finding_id: int):
     try:
         with get_db_connection() as conn:
             cursor = conn.cursor()
-            
-            # Check if this prompt_id exists
-            cursor.execute("SELECT * FROM data_entries WHERE prompt_id = ?", (finding_id,))
+            cursor.execute("SELECT * FROM data_entries WHERE id = ?", (finding_id))
             row = cursor.fetchone()
             
             if row is None:
@@ -199,8 +226,9 @@ async def trace_origin(finding_id: int):
             frontier_model_name = data_entry["model"]
             prompt = data_entry["prompt"]
             answer = data_entry["answer"]
-            html_return_string = await olmo_trace(frontier_model_name, prompt, answer, frontier_tokenizer)
-            register_trace(data_entry["id"], html_return_string)
+            #html_return_string = await olmo_trace(frontier_model_name, prompt, answer, frontier_tokenizer)
+            # print(html_return_string)
+            #register_trace(finding_id, html_return_string)
         
         
     except HTTPException:
@@ -216,5 +244,4 @@ if __name__ == "__main__":
     
     start_metrics_server()
     uvicorn.run("main:app", host="0.0.0.0", port=8003)
-    
     
