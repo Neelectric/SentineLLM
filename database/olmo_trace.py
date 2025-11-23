@@ -86,10 +86,19 @@ async def olmo_trace(frontier_model_id, prompt_text, frontier_text, frontier_tok
         span = doc["span"]
         lcs = doc["longest_common_substring"]
         
-        marked_span = span.replace(lcs, f"<marked>{lcs}</marked>")
+        if lcs and lcs in span:
+            marked_span = span.replace(lcs, f"<marked>{lcs}</marked>", 1)
+            print("MARK SUCCESSFUL")
+        else:
+            # Fallback: just show the span with lcs at the end
+            marked_span = f"{span} [LCS: <marked>{lcs}</marked>]"
+            print("MARK FAILED")
+        print(marked_span)
         return_string += marked_span + "<hr />"
 
+
     return return_string
+
 
             
 
