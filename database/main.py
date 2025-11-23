@@ -196,7 +196,7 @@ async def trace_origin(finding_id: int):
     try:
         with get_db_connection() as conn:
             cursor = conn.cursor()
-            cursor.execute("SELECT * FROM data_entries WHERE id = ?", (finding_id))
+            cursor.execute("SELECT * FROM data_entries WHERE prompt_id = ?", (finding_id,))  # Add comma!
             row = cursor.fetchone()
             
             if row is None:
@@ -226,7 +226,7 @@ async def trace_origin(finding_id: int):
             
             frontier_model_name = data_entry["model"]
             prompt = data_entry["prompt"]
-            answer = data_entry["answer"]
+            answer = data_entry["rejected_answer"]
             html_return_string = await olmo_trace(frontier_model_name, prompt, answer, frontier_tokenizer)
             print(html_return_string)
             register_trace(finding_id, html_return_string)
