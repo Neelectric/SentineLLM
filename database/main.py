@@ -90,7 +90,7 @@ async def post_data_entry(entry: Dict[str, Any] = Body(
             )
             # The context manager will handle conn.commit()
             new_id = cursor.lastrowid
-            if "NULL" in answer:
+            if "NULL" in rejected_answer:
                 sent_answer = answer
             else:
                 sent_answer = rejected_answer

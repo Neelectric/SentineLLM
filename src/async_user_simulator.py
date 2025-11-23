@@ -41,8 +41,7 @@ async def process_prompt(prompt_id, prompt_text):
     )
     
     frontier_text = frontier_response.choices[0].message.content
-    
-    # collect safety rating from guard model
+  
     safety_rating = 1
     guard_response = await guard_client.chat.completions.create(
         model=guard_model_id,
@@ -54,12 +53,8 @@ async def process_prompt(prompt_id, prompt_text):
     guard_text = guard_response.choices[0].message.content
     if "Unsafe" in guard_text:
         safety_rating = 0        
-        register_unsafe_request(frontier_model_id, guard_model_id)
-        # register_reprompting(frontier_model_id, guard_model_id) # need to track when fixing happens but not implementing
-        # we no longer get olmotrace docs in user simulator, but in DB!
-        # pretrain_docs = await olmo_trace(frontier_model_id, prompt_text, frontier_text, frontier_tokenizer)
+        # register_unsafe_request(frontier_model_id, guard_model_id)
         
-        #here, we also re-prompt!
         reprompted_frontier_response = await frontier_client.chat.completions.create(
             model=frontier_model_id,
             messages=[
