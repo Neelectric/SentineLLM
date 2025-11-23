@@ -33,15 +33,6 @@ async def handle_button_press(request: Request):
 ...
 ```
 
-### Different metrics we can use:
-- Counter, exposes a number and they only go up (.inc(int))
-- Gauge, exposes a number but they can go up and down (.inc(int) and .dec(int))
-    use @gaugeInstance.track_progess() on top of a function to inc when functhing entered and dec when exited
-- Summary, size and number of events, for example tracking latency of a function (.observe(int))
-- Histogram, tacks number and size of events in buckets, use buckets arg to change (.observe(int))
-- Info, key value pairs, apparently they don't work in multiprocess mode (.info(dict))
-- Enum, which of a set of states is true (.state(string)), so you can switch what the state of the process is
-
 # How to serve the 'frontier' LLM and the guard on one GPU
 Serving the LLM
 ```
@@ -60,5 +51,3 @@ Qwen/Qwen3Guard-Gen-0.6B \
 --max-model-len 8192 \
 --gpu-memory-utilization 0.9
 ```
-
-
