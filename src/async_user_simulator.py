@@ -86,7 +86,7 @@ async def process_prompt(prompt_id, prompt_text):
         entry = {
                 "prompt_id" : prompt_id,
                 "prompt" : prompt_text,
-                "asnwer" : frontier_text,
+                "answer" : frontier_text,
                 "guard_rating" : safety_rating,
                 "guard_model" : guard_model_id,
                 "model" : frontier_model_id
@@ -99,7 +99,7 @@ async def process_prompt(prompt_id, prompt_text):
             return_item = None
         else:
             entry["refusal"] = True
-            entry["asnwer"] = reprompted_frontier_text
+            entry["answer"] = reprompted_frontier_text
             entry["rejected_answer"] = frontier_text
             # tqdm.write("SUCCESS")
             # return_item = [prompt_text, frontier_text, reprompted_frontier_text]
@@ -111,7 +111,7 @@ async def process_prompt(prompt_id, prompt_text):
         # tqdm.write("Tried to reprompt model, and second generation was")
         # tqdm.write(reprompted_frontier_text + "//////")
         # tqdm.write(reprompted_guard_text + "//////")
-
+        # print(entry)
         # Now send an entry to DB
         
         response = requests.post(f"{DATABASE_URL}/data", json=entry)

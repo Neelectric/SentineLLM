@@ -54,3 +54,4 @@ def initialize_db():
         print("Database schema created successfully (Table: data_entries).")
     except Exception as e:
         print(f"Failed to initialize database: {e}")
+        

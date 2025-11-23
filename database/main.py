@@ -35,6 +35,7 @@ def startup_event():
     """
     Ensures the SQLite database and necessary tables are created.
     """
+    wipe_db()
     initialize_db()
     print("FastAPI application started. Database initialized.")
 
@@ -65,7 +66,7 @@ async def post_data_entry(entry: Dict[str, Any] = Body(
         guard_rating = 1 if entry["guard_rating"] == "safe" else 0
         guard_model = entry["guard_model"]
         model_name = entry["model"]
-        rejected_answer = entry["rejected_asnwer"]
+        rejected_answer = entry["rejected_answer"]
     except KeyError as e:
         raise HTTPException(status_code=422, detail=f"Missing required field: {e.args[0]}")
     except TypeError:
@@ -86,7 +87,12 @@ async def post_data_entry(entry: Dict[str, Any] = Body(
             )
             # The context manager will handle conn.commit()
             new_id = cursor.lastrowid
-            register_data_finding(prompt_id, model_name, guard_model, prompt, answer, refusal)
+            if "NULL" in answer:
+                sent_answer = answer
+            else:
+                sent_answer = rejected_answer
+            
+            register_data_finding(prompt_id, model_name, guard_model, prompt, sent_answer, refusal)
             
         return {
             "message": "Data logged successfully",
@@ -141,11 +147,10 @@ def wipe_db() -> bool:
     try:
         with get_db_connection() as conn:
             cursor = conn.cursor()
-            cursor.execute("DELETE FROM data_entries")
-            cursor.execute("UPDATE sqlite_sequence SET seq = 0 WHERE name = 'data_entries'")
+            cursor.execute("DROP TABLE IF EXISTS data_entries")  # Drop the table completely
             reset_findings()
-
             return True
+
         
     except Exception as e:
         print(f"Error deleting data: {e}")
@@ -157,6 +162,7 @@ def refine_data():
 
 @app.get("/trace")
 async def trace_origin(finding_id: int):
+    print("trace origin triggered")
     try:
         with get_db_connection() as conn:
             cursor = conn.cursor()
@@ -185,7 +191,8 @@ async def trace_origin(finding_id: int):
 # --- 4. Server Execution ---
 if __name__ == "__main__":
     import uvicorn
-    wipe_db()
+    
+    
     start_metrics_server()
     uvicorn.run("main:app", host="0.0.0.0", port=8003)
     
