@@ -1,5 +1,5 @@
 # Sentinel Trace: Open-Source AI Monitoring Dashboard With Pre-Training Data Tracing And In-Flight DPO Dataset Creation
-
+Note: This README was written with the help of Claude. Feel free to also refer to our report under https://docs.google.com/document/d/1FcI0xWdU8hrhCA6KTin5BG4n8h8b6LKuNvQ5iUqLFWU/edit?usp=sharing.
 ## Abstract
 
 SentinelTrace is a comprehensive safety monitoring system for Large Language Models (LLMs) that implements a closed-loop feedback cycle for detecting, analyzing, and mitigating unsafe model outputs. The system combines adversarial testing, guardrail evaluation, training data attribution, and automated dataset generation to enable continuous model improvement through Direct Preference Optimization (DPO).
