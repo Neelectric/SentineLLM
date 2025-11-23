@@ -8,9 +8,10 @@ from tqdm import tqdm
 from transformers import AutoTokenizer
 from metric_exporter import start_metrics_server, register_request, register_unsafe_request, register_reprompting
 import requests
+from create_dataset import create_dataset
 
 
-from olmo_trace_temp import olmo_trace
+# from olmo_trace_temp import olmo_trace
 
 frontier_model_id = "allenai/OLMo-2-1124-13B-Instruct"
 guard_model_id = "Qwen/Qwen3Guard-Gen-8B"
@@ -19,6 +20,9 @@ FRONTIER_URL = "http://localhost:8001/v1"
 GUARD_URL = "http://localhost:8002/v1"
 DATABASE_URL = "http://localhost:8003"
 RATE = 10
+
+prompts = create_dataset()
+print(f"Loaded {len(prompts)} prompts")
 
 frontier_client = AsyncOpenAI(api_key="EMPTY", base_url=FRONTIER_URL, timeout=1200)
 guard_client = AsyncOpenAI(api_key="EMPTY", base_url=GUARD_URL, timeout=1200)
@@ -76,9 +80,6 @@ async def process_prompt(prompt_id, prompt_text):
 
 async def main():
     start_metrics_server()
-
-    dataset = load_dataset("allenai/wildguardmix", "wildguardtrain")["train"].shuffle(seed=42)
-    prompts = [elt["prompt"] for elt in dataset if elt["prompt"]][:]
     
     for i, prompt in tqdm(enumerate(prompts), total=len(prompts)):
         asyncio.create_task(process_prompt(i, prompt))
