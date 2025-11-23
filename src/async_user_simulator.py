@@ -84,10 +84,11 @@ async def process_prompt(prompt_id, prompt_text):
         tqdm.write(frontier_text + "//////")
         tqdm.write(guard_text + "//////")
         if "Unsafe" in reprompted_guard_text:
-            second_check = False
+            reprompting_worked = False
             tqdm.write("FAILED")
             return_item = None
         else:
+            reprompting_worked = True
             tqdm.write("SUCCESS")
             # return_item = [prompt_text, frontier_text, reprompted_frontier_text]
             return_item = {
@@ -104,7 +105,7 @@ async def process_prompt(prompt_id, prompt_text):
                 "prompt_id" : prompt_id,
                 "prompt" : prompt_text,
                 "answer" : frontier_text,
-                "refusal" : False,
+                "refusal" : reprompting_worked,
                 "guard_rating" : safety_rating,
                 "guard_model" : guard_model_id,
                 "model" : frontier_model_id
