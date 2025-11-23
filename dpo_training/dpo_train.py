@@ -29,17 +29,16 @@ def run_dpo_training(frontier_model_id, dataset_id):
         beta=0.1,
         
         # Sequence lengths (small for testing)
-        max_prompt_length=256,
-        max_length=512,
+        max_prompt_length=2048,
+        max_length=2048,
         
         # Memory optimization
         gradient_checkpointing=True,
         bf16=True,  # or fp16=True if bf16 not available
         
         # Logging
-        logging_steps=10,
+        logging_steps=1,
         eval_strategy="none",
-        eval_steps=50,
         
         # Saving
         save_strategy="steps",
