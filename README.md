@@ -2,6 +2,7 @@
 
 ## Grafana
 Go to where you donwloaded it (C:Program Files/GrafanaLabs/grafana/bin) and grafana-server.exe as admin, default credentials are usr: admin pwd: admin
+You need to create a custom.ini (copy sample.ini) and set disable_sanitize_html = true (search for it)
 
 ## Run Prometheus server
 1 - ensure the prometheys.yml is targettting the same ports you expose on

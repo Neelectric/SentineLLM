@@ -18,7 +18,7 @@
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 0,
-  "id": 0,
+  "id": 1,
   "links": [],
   "panels": [
     {
@@ -37,7 +37,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "bf4wswiywecqoc"
+        "uid": "df4xyze8t7nk0a"
       },
       "fieldConfig": {
         "defaults": {
@@ -51,7 +51,6 @@
             "axisLabel": "",
             "axisPlacement": "auto",
             "barAlignment": 0,
-            "barWidthFactor": 0.6,
             "drawStyle": "line",
             "fillOpacity": 15,
             "gradientMode": "none",
@@ -68,7 +67,6 @@
               "type": "linear"
             },
             "showPoints": "auto",
-            "showValues": false,
             "spanNulls": false,
             "stacking": {
               "group": "A",
@@ -84,7 +82,7 @@
             "steps": [
               {
                 "color": "green",
-                "value": 0
+                "value": null
               },
               {
                 "color": "red",
@@ -187,6 +185,7 @@
         },
         "tooltip": {
           "hideZeros": false,
+          "maxHeight": 600,
           "mode": "single",
           "sort": "none"
         }
@@ -224,7 +223,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "bf4wswiywecqoc"
+        "uid": "df4xyze8t7nk0a"
       },
       "fieldConfig": {
         "defaults": {
@@ -297,6 +296,7 @@
         "sort": "desc",
         "tooltip": {
           "hideZeros": false,
+          "maxHeight": 600,
           "mode": "single",
           "sort": "none"
         }
@@ -304,6 +304,10 @@
       "pluginVersion": "12.3.0",
       "targets": [
         {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "df4xyze8t7nk0a"
+          },
           "editorMode": "code",
           "expr": "llm_requests_total",
           "legendFormat": "Exposed JailBreaks",
@@ -330,7 +334,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "bf4wswiywecqoc"
+        "uid": "df4xyze8t7nk0a"
       },
       "fieldConfig": {
         "defaults": {
@@ -343,7 +347,7 @@
             "steps": [
               {
                 "color": "orange",
-                "value": 0
+                "value": null
               }
             ]
           }
@@ -374,9 +378,13 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "12.3.0",
+      "pluginVersion": "11.0.0",
       "targets": [
         {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "df4xyze8t7nk0a"
+          },
           "editorMode": "code",
           "expr": "data_findings_total",
           "legendFormat": "__auto",
@@ -390,7 +398,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "bf4wswiywecqoc"
+        "uid": "df4xyze8t7nk0a"
       },
       "fieldConfig": {
         "defaults": {
@@ -404,7 +412,6 @@
             "axisLabel": "",
             "axisPlacement": "auto",
             "barAlignment": 0,
-            "barWidthFactor": 0.6,
             "drawStyle": "line",
             "fillOpacity": 15,
             "gradientMode": "none",
@@ -421,7 +428,6 @@
               "type": "linear"
             },
             "showPoints": "auto",
-            "showValues": false,
             "spanNulls": false,
             "stacking": {
               "group": "A",
@@ -437,7 +443,7 @@
             "steps": [
               {
                 "color": "green",
-                "value": 0
+                "value": null
               },
               {
                 "color": "red",
@@ -464,6 +470,7 @@
         },
         "tooltip": {
           "hideZeros": false,
+          "maxHeight": 600,
           "mode": "single",
           "sort": "none"
         }
@@ -471,6 +478,10 @@
       "pluginVersion": "12.3.0",
       "targets": [
         {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "df4xyze8t7nk0a"
+          },
           "editorMode": "code",
           "expr": "rate(data_findings_total[$__range])",
           "legendFormat": "Findings",
@@ -484,7 +495,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "bf4wswiywecqoc"
+        "uid": "df4xyze8t7nk0a"
       },
       "fieldConfig": {
         "defaults": {
@@ -497,7 +508,7 @@
             "steps": [
               {
                 "color": "green",
-                "value": 0
+                "value": null
               },
               {
                 "color": "red",
@@ -516,6 +527,7 @@
       },
       "id": 9,
       "options": {
+        "infinitePan": false,
         "inlineEditing": false,
         "panZoom": false,
         "root": {
@@ -896,20 +908,28 @@
         },
         "zoomToContent": false
       },
-      "pluginVersion": "12.3.0",
+      "pluginVersion": "11.0.0",
       "targets": [
         {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "df4xyze8t7nk0a"
+          },
+          "editorMode": "code",
+          "expr": "",
+          "instant": false,
+          "legendFormat": "__auto",
+          "range": true,
           "refId": "A"
         }
       ],
-      "title": "",
       "transparent": true,
       "type": "canvas"
     },
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "bf4wswiywecqoc"
+        "uid": "df4xyze8t7nk0a"
       },
       "fieldConfig": {
         "defaults": {
@@ -923,7 +943,7 @@
             "steps": [
               {
                 "color": "dark-red",
-                "value": 0
+                "value": null
               },
               {
                 "color": "dark-orange",
@@ -973,9 +993,13 @@
         "sizing": "auto",
         "valueMode": "color"
       },
-      "pluginVersion": "12.3.0",
+      "pluginVersion": "11.0.0",
       "targets": [
         {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "df4xyze8t7nk0a"
+          },
           "editorMode": "code",
           "expr": "vector(0)",
           "legendFormat": "__auto",
@@ -983,23 +1007,199 @@
           "refId": "A"
         }
       ],
-      "title": "",
       "type": "bargauge"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "df4xyze8t7nk0a"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 17
+      },
+      "id": 10,
+      "options": {
+        "afterRender": "window.triggerAction = async (id, message, guard) => {\r\n\r\n  const baseUrl = 'http://localhost:8003/trace';\r\n\r\n  const params = new URLSearchParams({\r\n    finding_id: id\r\n  });\r\n\r\n  const fullUrl = `${baseUrl}?${params.toString()}`;\r\n\r\n  console.log(`Sending GET request to: ${fullUrl}`);\r\n\r\n  try {\r\n    const response = await fetch(fullUrl);\r\n\r\n    if (response.ok) {\r\n      console.log(`Trace request successfully initiated for ID: ${id}. Check server logs for full URL.`);\r\n    } else {\r\n      console.log(`Trace failed! Server returned error: ${response.status}. Check console (F12).`);\r\n    }\r\n  } catch (error) {\r\n    console.error('Network Error:', error);\r\n    alert('Network error occurred. The browser cannot reach the specified endpoint.');\r\n  }\r\n};",
+        "content": "<div style=\"margin-bottom:10px;\">Status: {{data.length}} rows loaded.</div>\n\n<table style=\"width:100%; border-collapse:collapse;\">\n  <thead>\n    <tr style=\"border-bottom:2px solid #444; text-align:left;\">\n      <th style=\"padding:8px;\">ID</th>\n      <th style=\"padding:8px;\">Guard</th>\n      <th style=\"padding:8px;\">Message</th>\n      <th style=\"padding:8px;\">Action</th>\n    </tr>\n  </thead>\n  <tbody>\n    {{#each data}}\n    <tr style=\"border-bottom:1px solid #333;\">\n      <td style=\"padding:8px;\">{{this.id}}</td>\n      <td style=\"padding:8px;\">{{this.guard}}</td>\n      <td style=\"padding:8px;\">{{this.message}}</td>\n      <td style=\"padding:8px;\">\n        <button style=\"background:#3274d9;color:white;border:none;padding:5px 10px;cursor:pointer;\" onclick='triggerAction(\"{{this.id}}\", {{json this.message}}, \"{{this.guard}}\")'>Send</button>\n      </td>\n    </tr>\n    {{/each}}\n  </tbody>\n</table>",
+        "contentPartials": [],
+        "defaultContent": "",
+        "editor": {
+          "format": "auto",
+          "language": "html"
+        },
+        "editors": [
+          "afterRender"
+        ],
+        "externalStyles": [],
+        "helpers": "",
+        "renderMode": "allRows",
+        "styles": "",
+        "wrap": true
+      },
+      "pluginVersion": "6.2.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "df4xyze8t7nk0a"
+          },
+          "editorMode": "code",
+          "exemplar": false,
+          "expr": "latest_finding_info",
+          "format": "table",
+          "instant": true,
+          "legendFormat": "__auto",
+          "range": false,
+          "refId": "A"
+        }
+      ],
+      "title": "Findings",
+      "transformations": [
+        {
+          "id": "labelsToFields",
+          "options": {
+            "mode": "columns"
+          }
+        }
+      ],
+      "transparent": true,
+      "type": "marcusolsson-dynamictext-panel"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "df4xyze8t7nk0a"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 17
+      },
+      "id": 11,
+      "options": {
+        "afterRender": "",
+        "content": "<hr />\r\n{{{text}}}\r\n<hr />",
+        "contentPartials": [],
+        "defaultContent": "The query didn't return any results.",
+        "editor": {
+          "format": "auto",
+          "language": "handlebars"
+        },
+        "editors": [
+          "styles",
+          "afterRender"
+        ],
+        "externalStyles": [],
+        "helpers": "",
+        "renderMode": "everyRow",
+        "styles": "marked {\r\n  background-color: rgba(255, 0, 0, 0.2);\r\n  text-decoration: underline red;\r\n  padding: 0 2px;\r\n  color: white;\r\n}",
+        "wrap": true
+      },
+      "pluginVersion": "6.2.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "df4xyze8t7nk0a"
+          },
+          "editorMode": "code",
+          "exemplar": false,
+          "expr": "trace_info",
+          "format": "table",
+          "instant": true,
+          "legendFormat": "__auto",
+          "range": false,
+          "refId": "A"
+        }
+      ],
+      "title": "Faulty Data",
+      "transformations": [
+        {
+          "id": "extractFields",
+          "options": {
+            "format": "json",
+            "jsonPaths": [],
+            "keepTime": false,
+            "replace": false,
+            "source": "text"
+          }
+        },
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": {
+              "Time": true,
+              "Value": true,
+              "__name__": true,
+              "application": true,
+              "id": false,
+              "instance": true,
+              "job": true
+            },
+            "includeByName": {},
+            "indexByName": {},
+            "renameByName": {}
+          }
+        }
+      ],
+      "transparent": true,
+      "type": "marcusolsson-dynamictext-panel"
     }
   ],
-  "preload": false,
-  "schemaVersion": 42,
+  "schemaVersion": 39,
   "tags": [],
   "templating": {
     "list": []
   },
   "time": {
-    "from": "now-1h",
+    "from": "now-30m",
     "to": "now"
   },
+  "timeRangeUpdatedDuringEditOrView": false,
   "timepicker": {},
   "timezone": "browser",
   "title": "Sentinel Trace 2",
   "uid": "SentinelTrace2",
-  "version": 36
+  "version": 83,
+  "weekStart": ""
 }

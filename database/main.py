@@ -2,7 +2,9 @@ from fastapi import FastAPI, HTTPException, Body
 from datetime import datetime
 from typing import List, Dict, Any
 from database import initialize_db, get_db_connection
-from metric_exporter import start_metrics_server, register_data_finding, reset_findings
+from metric_exporter import start_metrics_server, register_data_finding, reset_findings, register_trace
+from fastapi.middleware.cors import CORSMiddleware
+import random
 
 # --- 1. FastAPI Initialization ---
 
@@ -11,6 +13,14 @@ app = FastAPI(
     title="JailBreaking Prompt Database",
     description="",
     version="1.0.0"
+)
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 # --- 2. FastAPI Event Handlers ---
@@ -140,9 +150,17 @@ def wipe_db() -> bool:
 def refine_data():
     print("Now the cool stuff should happen")    
 
+@app.get("/trace")
+def trace_origin(finding_id: int):
+    register_trace(finding_id, f"The chosen <marked> number is {random.randint(1,6)}</marked>")
+    register_data_finding("1", "model", "guard", "a"*random.randint(1,6))
+    print("OLMO trace should return the documents highlighted")
+
 # --- 4. Server Execution ---
 if __name__ == "__main__":
     import uvicorn
     start_metrics_server()
+    register_data_finding("1", "model", "guard", "pee pee poo pee")
     uvicorn.run("main:app", host="0.0.0.0", port=8003)
+    
     

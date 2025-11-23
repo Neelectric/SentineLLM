@@ -56,11 +56,7 @@ async def process_prompt(prompt_id, prompt_text):
         tqdm.write("#" * 50)
         register_unsafe_request(frontier_model_id, guard_model_id)
         # register_reprompting(frontier_model_id, guard_model_id) # need to track when fixing happens but not implementing
-    else:
-        safety_rating = 1
-    # print(f"----[{prompt_id}] {time.time() - start:.2f}s {safety_rating}")
-    pre_train_docs = olmo_trace(frontier_model_id, prompt_text, frontier_text)
-    entry = {
+        entry = {
             "prompt_id" : prompt_id,
             "prompt" : prompt_text,
             "answer" : frontier_text,
@@ -69,7 +65,12 @@ async def process_prompt(prompt_id, prompt_text):
             "guard_model" : guard_model_id,
             "model" : frontier_model_id
         }
-    response = requests.post(f"{DATABASE_URL}/data", json=entry)
+        response = requests.post(f"{DATABASE_URL}/data", json=entry)
+    else:
+        safety_rating = 1
+    # print(f"----[{prompt_id}] {time.time() - start:.2f}s {safety_rating}")
+    pre_train_docs = olmo_trace(frontier_model_id, prompt_text, frontier_text)
+    
 
 async def main():
     start_metrics_server()

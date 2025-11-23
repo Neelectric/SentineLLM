@@ -1,4 +1,5 @@
-from prometheus_client import start_http_server, Gauge
+from prometheus_client import start_http_server, Gauge, Info
+import time
 
 REGISTERED_LABELS = set()
 DATA_FINDINGS_TOTAL = Gauge(
@@ -7,14 +8,37 @@ DATA_FINDINGS_TOTAL = Gauge(
     ['model', 'guard'] 
 )
 
-def register_data_finding(model_name: str, guard_name: str):
+TRACE_INFO =  Info(
+    'trace',
+    'Trace information for the selected finding.'
+)
+
+LATEST_FINDING_INFO = Info(
+    'latest_finding',
+    'Context for the latest data finding that requires action.'
+)
+
+def register_data_finding(id: str, model_name: str, guard_name: str, prompt: str):
     REGISTERED_LABELS.add((model_name, guard_name))
     DATA_FINDINGS_TOTAL.labels(model=model_name, guard=guard_name).inc()
+    LATEST_FINDING_INFO.info({
+        'id': id,
+        'model': model_name,
+        'guard': guard_name,
+        'message': prompt,
+        'timestamp': str(int(time.time() * 1000)) # Add a timestamp for uniqueness
+    })
 
 def reset_findings():
     labels_to_wipe = list(REGISTERED_LABELS)
     for model, guard in labels_to_wipe:
             DATA_FINDINGS_TOTAL.labels(model=model, guard=guard).set(0)
+
+def register_trace(id: str, text: str):
+     TRACE_INFO.info({
+        'id': str(id),
+        'text': text
+     })
 
 def start_metrics_server(port=8004):
     """
