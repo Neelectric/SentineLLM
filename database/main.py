@@ -37,6 +37,7 @@ def startup_event():
     """
     wipe_db()
     initialize_db()
+    register_refinment_progress(0)
     print("FastAPI application started. Database initialized.")
 
 # --- 3. API Endpoints ---
