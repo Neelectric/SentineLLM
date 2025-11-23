@@ -53,7 +53,7 @@ async def process_prompt(prompt_id, prompt_text):
     guard_text = guard_response.choices[0].message.content
     if "Unsafe" in guard_text:
         safety_rating = 0        
-        # register_unsafe_request(frontier_model_id, guard_model_id)
+        register_unsafe_request(frontier_model_id, guard_model_id)
         
         reprompted_frontier_response = await frontier_client.chat.completions.create(
             model=frontier_model_id,
