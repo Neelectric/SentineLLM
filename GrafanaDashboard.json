@@ -18,7 +18,7 @@
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 0,
-  "id": 2,
+  "id": 0,
   "links": [],
   "panels": [
     {
@@ -37,7 +37,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "df4xyze8t7nk0a"
+        "uid": "bf4wswiywecqoc"
       },
       "fieldConfig": {
         "defaults": {
@@ -51,6 +51,7 @@
             "axisLabel": "",
             "axisPlacement": "auto",
             "barAlignment": 0,
+            "barWidthFactor": 0.6,
             "drawStyle": "line",
             "fillOpacity": 15,
             "gradientMode": "none",
@@ -67,6 +68,7 @@
               "type": "linear"
             },
             "showPoints": "auto",
+            "showValues": false,
             "spanNulls": false,
             "stacking": {
               "group": "A",
@@ -82,7 +84,7 @@
             "steps": [
               {
                 "color": "green",
-                "value": null
+                "value": 0
               },
               {
                 "color": "red",
@@ -223,7 +225,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "df4xyze8t7nk0a"
+        "uid": "bf4wswiywecqoc"
       },
       "fieldConfig": {
         "defaults": {
@@ -309,7 +311,7 @@
             "uid": "df4xyze8t7nk0a"
           },
           "editorMode": "code",
-          "expr": "llm_requests_total",
+          "expr": "sum(llm_requests_total)",
           "legendFormat": "Exposed JailBreaks",
           "range": true,
           "refId": "A"
@@ -320,7 +322,7 @@
             "uid": "bf4wswiywecqoc"
           },
           "editorMode": "code",
-          "expr": "data_findings_total",
+          "expr": "sum(data_findings_total)",
           "hide": false,
           "instant": false,
           "legendFormat": "Fixed JailBreaks",
@@ -334,7 +336,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "df4xyze8t7nk0a"
+        "uid": "bf4wswiywecqoc"
       },
       "fieldConfig": {
         "defaults": {
@@ -347,7 +349,7 @@
             "steps": [
               {
                 "color": "orange",
-                "value": null
+                "value": 0
               }
             ]
           }
@@ -378,7 +380,7 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "11.0.0",
+      "pluginVersion": "12.3.0",
       "targets": [
         {
           "datasource": {
@@ -386,7 +388,9 @@
             "uid": "df4xyze8t7nk0a"
           },
           "editorMode": "code",
-          "expr": "data_findings_total",
+          "exemplar": false,
+          "expr": "data_findings_total{model=\"allenai/OLMo-2-0425-1B-Instruct\"}",
+          "instant": false,
           "legendFormat": "__auto",
           "range": true,
           "refId": "A"
@@ -398,7 +402,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "df4xyze8t7nk0a"
+        "uid": "bf4wswiywecqoc"
       },
       "fieldConfig": {
         "defaults": {
@@ -412,6 +416,7 @@
             "axisLabel": "",
             "axisPlacement": "auto",
             "barAlignment": 0,
+            "barWidthFactor": 0.6,
             "drawStyle": "line",
             "fillOpacity": 15,
             "gradientMode": "none",
@@ -428,6 +433,7 @@
               "type": "linear"
             },
             "showPoints": "auto",
+            "showValues": false,
             "spanNulls": false,
             "stacking": {
               "group": "A",
@@ -443,7 +449,7 @@
             "steps": [
               {
                 "color": "green",
-                "value": null
+                "value": 0
               },
               {
                 "color": "red",
@@ -483,7 +489,7 @@
             "uid": "df4xyze8t7nk0a"
           },
           "editorMode": "code",
-          "expr": "rate(data_findings_total[$__range])",
+          "expr": "rate(data_findings_total{model=\"allenai/OLMo-2-0425-1B-Instruct\"}[$__range])",
           "legendFormat": "Findings",
           "range": true,
           "refId": "A"
@@ -495,7 +501,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "df4xyze8t7nk0a"
+        "uid": "bf4wswiywecqoc"
       },
       "fieldConfig": {
         "defaults": {
@@ -508,7 +514,7 @@
             "steps": [
               {
                 "color": "green",
-                "value": null
+                "value": 0
               },
               {
                 "color": "red",
@@ -908,7 +914,7 @@
         },
         "zoomToContent": false
       },
-      "pluginVersion": "11.0.0",
+      "pluginVersion": "12.3.0",
       "targets": [
         {
           "datasource": {
@@ -923,13 +929,14 @@
           "refId": "A"
         }
       ],
+      "title": "",
       "transparent": true,
       "type": "canvas"
     },
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "df4xyze8t7nk0a"
+        "uid": "bf4wswiywecqoc"
       },
       "fieldConfig": {
         "defaults": {
@@ -943,7 +950,7 @@
             "steps": [
               {
                 "color": "dark-red",
-                "value": null
+                "value": 0
               },
               {
                 "color": "dark-orange",
@@ -993,7 +1000,7 @@
         "sizing": "auto",
         "valueMode": "color"
       },
-      "pluginVersion": "11.0.0",
+      "pluginVersion": "12.3.0",
       "targets": [
         {
           "datasource": {
@@ -1007,12 +1014,13 @@
           "refId": "A"
         }
       ],
+      "title": "",
       "type": "bargauge"
     },
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "df4xyze8t7nk0a"
+        "uid": "bf4wswiywecqoc"
       },
       "fieldConfig": {
         "defaults": {
@@ -1021,7 +1029,7 @@
             "steps": [
               {
                 "color": "green",
-                "value": null
+                "value": 0
               },
               {
                 "color": "red",
@@ -1034,13 +1042,13 @@
       },
       "gridPos": {
         "h": 16,
-        "w": 12,
+        "w": 16,
         "x": 0,
         "y": 17
       },
       "id": 12,
       "options": {
-        "afterRender": "window.triggerAction = async (id, message, guard) => {\r\n\r\n  const baseUrl = 'http://localhost:8003/trace';\r\n\r\n  const params = new URLSearchParams({\r\n    finding_id: id\r\n  });\r\n\r\n  const fullUrl = `${baseUrl}?${params.toString()}`;\r\n\r\n  console.log(`Sending GET request to: ${fullUrl}`);\r\n\r\n  try {\r\n    const response = await fetch(fullUrl);\r\n\r\n    if (response.ok) {\r\n      console.log(`Trace request successfully initiated for ID: ${id}. Check server logs for full URL.`);\r\n    } else {\r\n      console.log(`Trace failed! Server returned error: ${response.status}. Check console (F12).`);\r\n    }\r\n  } catch (error) {\r\n    console.error('Network Error:', error);\r\n    alert('Network error occurred. The browser cannot reach the specified endpoint.');\r\n  }\r\n};\r\n\r\nsetTimeout(() => {\r\n  const rows = document.querySelectorAll(\"#findings-table tbody tr\");\r\n  const seen = new Set();\r\n\r\n  rows.forEach(row => {\r\n    const cells = row.querySelectorAll(\"td\");\r\n    const id = cells[0].innerText.trim();\r\n    const model = cells[1].innerText.trim();\r\n    const guard = cells[2].innerText.trim();\r\n    const message = cells[3].innerText.trim();\r\n\r\n    const key = `${id}|${model}|${guard}|${message}`;\r\n\r\n    if (seen.has(key)) {\r\n      row.remove();              // Remove duplicate row\r\n    } else {\r\n      seen.add(key);\r\n    }\r\n  });\r\n\r\n  // Update row count text\r\n  const count = seen.size;\r\n  const statusDiv = document.querySelector(\"div[style*='margin-bottom']\");\r\n  if (statusDiv) statusDiv.innerHTML = `Status: ${count} unique rows loaded.`;\r\n\r\n}, 10); ",
+        "afterRender": "window.triggerAction = async (id, message, guard) => {\r\n\r\n  const baseUrl = 'http://localhost:8003/trace';\r\n\r\n  const params = new URLSearchParams({\r\n    finding_id: id\r\n  });\r\n\r\n  const fullUrl = `${baseUrl}?${params.toString()}`;\r\n\r\n  console.log(`Sending GET request to: ${fullUrl}`);\r\n\r\n  try {\r\n    const response = await fetch(fullUrl);\r\n\r\n    if (response.ok) {\r\n      console.log(`Trace request successfully initiated for ID: ${id}. Check server logs for full URL.`);\r\n    } else {\r\n      console.log(`Trace failed! Server returned error: ${response.status}. Check console (F12).`);\r\n    }\r\n  } catch (error) {\r\n    console.error('Network Error:', error);\r\n    alert('Network error occurred. The browser cannot reach the specified endpoint.');\r\n  }\r\n};\r\n\r\nsetTimeout(() => {\r\n  const rows = document.querySelectorAll(\"#findings-table tbody tr\");\r\n  const seen = new Set();\r\n\r\n  rows.forEach(row => {\r\n    const cells = row.querySelectorAll(\"td\");\r\n    const id = cells[0].innerText.trim();\r\n    const model = cells[1].innerText.trim();\r\n    const guard = cells[2].innerText.trim();\r\n    const message = cells[3].innerText.trim();\r\n\r\n    const key = `${id}|${model}|${guard}|${message}`;\r\n\r\n    if (seen.has(key)) {\r\n      row.remove();              // Remove duplicate row\r\n    } else {\r\n      seen.add(key);\r\n    }\r\n  });\r\n\r\n  // Update row count text\r\n  const count = seen.size;\r\n  const statusDiv = document.querySelector(\"div[style*='margin-bottom']\");\r\n  \r\n\r\n}, 10); ",
         "content": "<table id=\"findings-table\" style=\"width:100%; border-collapse:collapse;\">\n  <thead>\n    <tr style=\"border-bottom:2px solid #444; text-align:left;\">\n      <th style=\"padding:8px;\">timestamp</th>\n      <th style=\"padding:8px;\">Model</th>\n      <th style=\"padding:8px;\">Message</th>\n      <th style=\"padding:8px;\">Action</th>\n    </tr>\n  </thead>\n  <tbody>\n    {{#each data}}\n    <tr style=\"border-bottom:1px solid #333;\">\n      <td style=\"padding:8px;\">{{this.timestamp}}</td>\n      <td style=\"padding:8px;\">{{this.model}}</td>\n      <td style=\"padding:8px;\">{{this.message}}</td>\n      <td style=\"padding:8px;\">\n        <button style=\"background:#3274d9;color:white;border:none;padding:5px 10px;cursor:pointer;\"\n                onclick='triggerAction(\"{{this.id}}\", {{json this.message}}, \"{{this.guard}}\")'>\n          Send\n        </button>\n      </td>\n    </tr>\n    {{/each}}\n  </tbody>\n</table>\n",
         "contentPartials": [],
         "defaultContent": "",
@@ -1081,7 +1089,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "df4xyze8t7nk0a"
+        "uid": "bf4wswiywecqoc"
       },
       "fieldConfig": {
         "defaults": {
@@ -1090,7 +1098,7 @@
             "steps": [
               {
                 "color": "green",
-                "value": null
+                "value": 0
               },
               {
                 "color": "red",
@@ -1103,14 +1111,14 @@
       },
       "gridPos": {
         "h": 16,
-        "w": 12,
-        "x": 12,
+        "w": 8,
+        "x": 16,
         "y": 17
       },
       "id": 11,
       "options": {
         "afterRender": "",
-        "content": "<hr />\r\n{{{text}}}\r\n<hr />",
+        "content": "{{{text}}}",
         "contentPartials": [],
         "defaultContent": "The query didn't return any results.",
         "editor": {
@@ -1178,20 +1186,19 @@
       "type": "marcusolsson-dynamictext-panel"
     }
   ],
-  "schemaVersion": 39,
+  "preload": false,
+  "schemaVersion": 42,
   "tags": [],
   "templating": {
     "list": []
   },
   "time": {
-    "from": "now-1h",
+    "from": "now-5m",
     "to": "now"
   },
-  "timeRangeUpdatedDuringEditOrView": false,
   "timepicker": {},
   "timezone": "browser",
-  "title": "Sentinel Trace 2 Copy",
+  "title": "Sentinel Trace 3",
   "uid": "af4zmifvoffggf",
-  "version": 2,
-  "weekStart": ""
+  "version": 21
 }
